@@ -1,0 +1,82 @@
+%code requires {
+#include "logicaloperator.h"
+}
+%{
+#include <string>
+#include <memory>
+#include <iostream>
+#include <unordered_set>
+#include "graph.h"
+#include "argument.h"
+
+extern "C"
+{
+    int yyparse(void);
+    int yylex(void);
+}
+
+std::unique_ptr<stardec::Graph> graph = std::make_unique<stardec::Graph>();
+unsigned int index = 0;
+std::unordered_set<std::string> args;
+
+void yyerror (char const *s) {
+   fprintf (stderr, "%s\n", s);
+ }
+%}
+
+%token ARG ATT GOAL LEFTPAR RIGHTPAR DOT COMMA AND OR NOT
+%union {
+    char *str;
+    stardec::LogicalOperator *ope;
+}
+%token <str> LABEL
+%type <ope> logical
+
+%start arggraph
+
+%%
+
+arggraph : lines {}
+
+lines : arg
+        | arg lines
+        | att
+        | att lines
+        | goallist
+        | goallist lines
+
+arg: ARG LEFTPAR LABEL RIGHTPAR DOT {
+    auto arg = std::make_shared<stardec::Argument>($3, index++);
+    graph->add_argument(arg);
+    std::cout << "Argument parsed: " << arg->get_label() << std::endl;
+    args.insert($3);
+    free($3);
+}
+
+att: ATT LEFTPAR LABEL COMMA LABEL RIGHTPAR DOT {
+    if(args.find($3) == args.end()) {
+         yyerror(("Argument " + std::string($3) + " is not declared.").c_str());
+         free($3);
+         YYERROR;
+    }
+    if(args.find($5) == args.end()) {
+         yyerror(("Argument " + std::string($5) + " is not declared.").c_str());
+         free($5);
+         YYERROR;
+    }
+    graph->attack($3, $5); free($3); free($5);
+}
+
+goallist: GOAL logical DOT {std::cout << "Parsed goal: " << $2->to_s() << std::endl; graph->set_goals($2);}
+
+logical: LABEL {
+    if(args.find($1) == args.end()) {
+        yyerror(("Argument " + std::string($1) + " is not declared.").c_str());
+        free($1);
+        YYERROR;
+    }
+    $$ = stardec::LogicalOperator::BuildArg($1); free($1);
+}
+        | NOT logical {$$ = stardec::LogicalOperator::BuildNot($2);}
+        | LEFTPAR logical AND logical RIGHTPAR {$$ = stardec::LogicalOperator::BuildAnd($2, $4);}
+        | LEFTPAR logical OR logical RIGHTPAR {$$ = stardec::LogicalOperator::BuildOr($2, $4);}

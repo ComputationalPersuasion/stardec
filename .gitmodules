@@ -1,0 +1,3 @@
+[submodule "lib/splittercell"]
+	path = lib/splittercell
+	url = https://github.com/ComputationalPersuasion/splittercell.git
