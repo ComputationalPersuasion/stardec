@@ -13,6 +13,7 @@ namespace stardec {
     public:
         void add_argument(const std::shared_ptr<Argument>& argument);
         const std::shared_ptr<Argument>& argument(const std::string &label) const {return _arguments.at(label);}
+        const id_of(const std::string &label) const {return argument(label)->id();}
         const std::unordered_map<std::string, std::shared_ptr<Argument>>& arguments() const {return _arguments;};
         std::set<std::string> arguments_labels() const;
         void attack(const std::string &arg1, const std::string &arg2);

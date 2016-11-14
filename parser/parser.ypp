@@ -1,11 +1,14 @@
 %code requires {
 #include "logicaloperator.h"
+#include "distribution.h"
 }
 %{
 #include <string>
 #include <memory>
 #include <iostream>
 #include <unordered_set>
+#include <vector>
+#include <algorithm>
 #include "graph.h"
 #include "argument.h"
 
@@ -16,6 +19,7 @@ extern "C"
 }
 
 std::unique_ptr<stardec::Graph> graph = std::make_unique<stardec::Graph>();
+std::vector<std::shared_ptr<splittercell::Flock>> flocks;
 unsigned int index = 0;
 std::unordered_set<std::string> args;
 
@@ -24,13 +28,15 @@ void yyerror (char const *s) {
  }
 %}
 
-%token ARG ATT GOAL LEFTPAR RIGHTPAR DOT COMMA AND OR NOT
+%token ARG ATT GOAL FLOCK LEFTPAR RIGHTPAR DOT COMMA AND OR NOT COND
 %union {
     char *str;
     stardec::LogicalOperator *ope;
+    std::vector<char *> *arglabels;
 }
 %token <str> LABEL
 %type <ope> logical
+%type <arglabels> labellist
 
 %start arggraph
 
@@ -44,6 +50,8 @@ lines : arg
         | att lines
         | goallist
         | goallist lines
+        | flock lines
+        | flock
 
 arg: ARG LEFTPAR LABEL RIGHTPAR DOT {
     auto arg = std::make_shared<stardec::Argument>($3, index++);
@@ -77,6 +85,26 @@ logical: LABEL {
     }
     $$ = stardec::LogicalOperator::BuildArg($1); free($1);
 }
+        | LEFTPAR logical RIGHTPAR {$$ = $2;}
         | NOT logical {$$ = stardec::LogicalOperator::BuildNot($2);}
         | LEFTPAR logical AND logical RIGHTPAR {$$ = stardec::LogicalOperator::BuildAnd($2, $4);}
         | LEFTPAR logical OR logical RIGHTPAR {$$ = stardec::LogicalOperator::BuildOr($2, $4);}
+
+flock: FLOCK LEFTPAR labellist RIGHTPAR DOT {
+  std::vector<unsigned int> indexes;
+  std::transform($3->begin(), 3->end(), std::back_inserter(indexes), [](auto s){return graph->if_of(s)});
+  for(auto s : $3) free(s);
+  free($3);
+  flocks.push_back(std::make_shared<splittercell::Flock>(indexes));
+}
+| FLOCK LEFTPAR labellist COND labellist RIGHPAR DOT {
+  std::vector<unsigned int> conditioned, conditioning;
+  std::transform($3->begin(), 3->end(), std::back_inserter(conditioned), [](auto s){return graph->if_of(s)});
+  std::transform($5->begin(), 5->end(), std::back_inserter(conditioning), [](auto s){return graph->if_of(s)});
+  for(auto s : $3) free(s); free($3);
+  for(auto s : $5) free(s); free($5);
+  flocks.push_back(std::make_shared<splittercell::Flock>(conditioned, conditioning));
+}
+
+labellist: labellist LABEL {$1->push_back($2); $$ = $1;}
+          | LABEL {$$ = new std::vector<char*>($1);}

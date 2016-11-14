@@ -14,6 +14,7 @@ LABEL [a-zA-Z0-9_]+
 "arg"   {return ARG;}
 "att"   {return ATT;}
 "goal"  {return GOAL;}
+"flock" {return FLOCK;}
 "AND"   {return AND;}
 "OR"    {return OR;}
 "NOT"   {return NOT;}
@@ -24,5 +25,6 @@ LABEL [a-zA-Z0-9_]+
 ")"     {return RIGHTPAR;}
 "."     {return DOT;}
 ","     {return COMMA;}
+"|"     {return COND;}
 
 %%
