@@ -9,15 +9,15 @@
 #include "decision_functions.h"
 #include "node.h"
 
-typedef std::function<void(std::set<std::string>&, const std::vector<std::string>&)> FilterFunction;
+typedef std::function<void(std::set<std::string>&, const std::vector<std::string>&)> filterfunction;
 
 namespace stardec {
-    class Tree {
+    class tree {
     public:
-        Tree(const Graph &graph, std::vector<FilterFunction> filter_functions, unsigned int horizon);
+        tree(const graph &g, std::vector<filterfunction> filter_functions, unsigned int horizon);
 
     private:
-        std::unique_ptr<Node> _root;
+        std::unique_ptr<node> _root;
     };
 }
 

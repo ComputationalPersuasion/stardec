@@ -2,7 +2,6 @@
 %option nounput
 
 %{
-#include "logicaloperator.h"
 #include "parser.hpp"
 #define YY_DECL extern "C" int yylex()
 %}

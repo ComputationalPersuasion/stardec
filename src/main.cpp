@@ -1,4 +1,5 @@
 #include <iostream>
+#include "graph.h"
 #include "cxxopts.hpp"
 extern "C" {
     #include "parser.hpp"
@@ -38,8 +39,12 @@ int main(int argc, char *argv[]) {
     }
 
     yyin = fopen(inputfilename.c_str(), "r");
-    yyparse();
-
+    stardec::graph *g = new stardec::graph();
+    yyparse(g);
     fclose(yyin);
+
+    std::cout << g->distribution().to_str() << std::endl;
+
+    delete g;
     return 0;
 }

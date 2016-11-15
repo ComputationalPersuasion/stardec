@@ -1,37 +1,40 @@
+%parse-param {stardec::graph *g}
+
 %code requires {
-#include "logicaloperator.h"
-#include "distribution.h"
+  #include "logicaloperator.h"
+  #include "graph.h"
+  #include <vector>
 }
 %{
-#include <string>
-#include <memory>
-#include <iostream>
-#include <unordered_set>
-#include <vector>
-#include <algorithm>
-#include "graph.h"
-#include "argument.h"
+  #include <string>
+  #include <memory>
+  #include <iostream>
+  #include <unordered_set>
+  #include <algorithm>
+  #include "graph.h"
+  #include "argument.h"
+  #include "flock.h"
 
-extern "C"
-{
-    int yyparse(void);
-    int yylex(void);
-}
+  extern "C"
+  {
+      int yyparse(stardec::graph*);
+      int yylex(void);
+  }
 
-std::unique_ptr<stardec::Graph> graph = std::make_unique<stardec::Graph>();
-std::vector<std::shared_ptr<splittercell::Flock>> flocks;
-unsigned int index = 0;
-std::unordered_set<std::string> args;
+  //std::unique_ptr<stardec::graph> g = std::make_unique<stardec::graph>();
+  std::vector<std::shared_ptr<splittercell::flock>> flocks;
+  unsigned int index = 0;
+  std::unordered_set<std::string> args;
 
-void yyerror (char const *s) {
-   fprintf (stderr, "%s\n", s);
- }
+  void yyerror (stardec::graph *g, char const *s) {
+     fprintf (stderr, "%s\n", s);
+   }
 %}
 
 %token ARG ATT GOAL FLOCK LEFTPAR RIGHTPAR DOT COMMA AND OR NOT COND
 %union {
     char *str;
-    stardec::LogicalOperator *ope;
+    stardec::logicaloperator *ope;
     std::vector<char *> *arglabels;
 }
 %token <str> LABEL
@@ -39,10 +42,11 @@ void yyerror (char const *s) {
 %type <arglabels> labellist
 
 %start arggraph
-
 %%
 
-arggraph : lines {}
+arggraph : lines {
+  g->set_distribution(flocks);
+}
 
 lines : arg
         | arg lines
@@ -54,57 +58,57 @@ lines : arg
         | flock
 
 arg: ARG LEFTPAR LABEL RIGHTPAR DOT {
-    auto arg = std::make_shared<stardec::Argument>($3, index++);
-    graph->add_argument(arg);
-    std::cout << "Argument parsed: " << arg->get_label() << std::endl;
+    auto arg = std::make_shared<stardec::argument>($3, index++);
+    g->add_argument(arg);
+    std::cout << "Argument parsed: " << arg->label() << std::endl;
     args.insert($3);
     free($3);
 }
 
 att: ATT LEFTPAR LABEL COMMA LABEL RIGHTPAR DOT {
     if(args.find($3) == args.end()) {
-         yyerror(("Argument " + std::string($3) + " is not declared.").c_str());
+         yyerror(g, ("Argument " + std::string($3) + " is not declared.").c_str());
          free($3);
          YYERROR;
     }
     if(args.find($5) == args.end()) {
-         yyerror(("Argument " + std::string($5) + " is not declared.").c_str());
+         yyerror(g, ("Argument " + std::string($5) + " is not declared.").c_str());
          free($5);
          YYERROR;
     }
-    graph->attack($3, $5); free($3); free($5);
+    g->attack($3, $5); free($3); free($5);
 }
 
-goallist: GOAL logical DOT {std::cout << "Parsed goal: " << $2->to_s() << std::endl; graph->set_goals($2);}
+goallist: GOAL logical DOT {std::cout << "Parsed goal: " << $2->to_s() << std::endl; g->set_goals($2);}
 
 logical: LABEL {
     if(args.find($1) == args.end()) {
-        yyerror(("Argument " + std::string($1) + " is not declared.").c_str());
+        yyerror(g, ("Argument " + std::string($1) + " is not declared.").c_str());
         free($1);
         YYERROR;
     }
-    $$ = stardec::LogicalOperator::BuildArg($1); free($1);
+    $$ = stardec::logicaloperator::build_arg($1); free($1);
 }
         | LEFTPAR logical RIGHTPAR {$$ = $2;}
-        | NOT logical {$$ = stardec::LogicalOperator::BuildNot($2);}
-        | LEFTPAR logical AND logical RIGHTPAR {$$ = stardec::LogicalOperator::BuildAnd($2, $4);}
-        | LEFTPAR logical OR logical RIGHTPAR {$$ = stardec::LogicalOperator::BuildOr($2, $4);}
+        | NOT logical {$$ = stardec::logicaloperator::build_not($2);}
+        | LEFTPAR logical AND logical RIGHTPAR {$$ = stardec::logicaloperator::build_and($2, $4);}
+        | LEFTPAR logical OR logical RIGHTPAR {$$ = stardec::logicaloperator::build_or($2, $4);}
 
 flock: FLOCK LEFTPAR labellist RIGHTPAR DOT {
   std::vector<unsigned int> indexes;
-  std::transform($3->begin(), 3->end(), std::back_inserter(indexes), [](auto s){return graph->if_of(s)});
-  for(auto s : $3) free(s);
-  free($3);
-  flocks.push_back(std::make_shared<splittercell::Flock>(indexes));
+  std::transform($3->begin(), $3->end(), std::back_inserter(indexes), [g](auto s){return g->id_of(s);});
+  for(auto s : *$3) free(s);
+  delete $3;
+  flocks.push_back(std::make_shared<splittercell::flock>(indexes));
 }
-| FLOCK LEFTPAR labellist COND labellist RIGHPAR DOT {
+      | FLOCK LEFTPAR labellist COND labellist RIGHTPAR DOT {
   std::vector<unsigned int> conditioned, conditioning;
-  std::transform($3->begin(), 3->end(), std::back_inserter(conditioned), [](auto s){return graph->if_of(s)});
-  std::transform($5->begin(), 5->end(), std::back_inserter(conditioning), [](auto s){return graph->if_of(s)});
-  for(auto s : $3) free(s); free($3);
-  for(auto s : $5) free(s); free($5);
-  flocks.push_back(std::make_shared<splittercell::Flock>(conditioned, conditioning));
+  std::transform($3->begin(), $3->end(), std::back_inserter(conditioned), [g](auto s){return g->id_of(s);});
+  std::transform($5->begin(), $5->end(), std::back_inserter(conditioning), [g](auto s){return g->id_of(s);});
+  for(auto s : *$3) free(s); delete $3;
+  for(auto s : *$5) free(s); delete $5;
+  flocks.push_back(std::make_shared<splittercell::flock>(conditioned, conditioning));
 }
 
-labellist: labellist LABEL {$1->push_back($2); $$ = $1;}
-          | LABEL {$$ = new std::vector<char*>($1);}
+labellist: labellist COMMA LABEL {$1->push_back($3); $$ = $1;}
+          | LABEL {auto v = new std::vector<char*>(); v->push_back($1); $$ = v;}

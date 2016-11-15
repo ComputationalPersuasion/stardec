@@ -8,19 +8,19 @@
 #include "node.h"
 
 namespace stardec {
-    void max(std::shared_ptr<LeafNode> node, double discount_factor) {
+    void max(std::shared_ptr<leafnode> node, double discount_factor) {
         auto it = std::max_element(node->children.begin(), node->children.end(), [](auto a, auto b){return a.second->value < b.second->value;});
         node->optimal = it->second;
         node->value = it->second->value * discount_factor;
     }
 
-    void min(std::shared_ptr<LeafNode> node, double discount_factor) {
+    void min(std::shared_ptr<leafnode> node, double discount_factor) {
         auto it = std::min_element(node->children.begin(), node->children.end(), [](auto a, auto b){return a.second->value < b.second->value;});
         node->optimal = it->second;
         node->value = it->second->value * discount_factor;
     }
 
-    void maximax(std::shared_ptr<LeafNode> node, double discount_factor) {
+    void maximax(std::shared_ptr<leafnode> node, double discount_factor) {
         for(auto child : node->children) {
             for(auto leaves : child.second->children) {
                 if(!leaves.second->is_leaf())
@@ -31,7 +31,7 @@ namespace stardec {
         max(node, discount_factor);
     }
 
-    void maximin(std::shared_ptr<LeafNode> node, double discount_factor) {
+    void maximin(std::shared_ptr<leafnode> node, double discount_factor) {
         for(auto child : node->children) {
             for(auto leaves : child.second->children) {
                 if(!leaves.second->is_leaf())
@@ -42,7 +42,7 @@ namespace stardec {
         max(node, discount_factor);
     }
 
-    void laplace(std::shared_ptr<LeafNode> node, double discount_factor) {
+    void laplace(std::shared_ptr<leafnode> node, double discount_factor) {
         for(auto child : node->children) {
             for(auto leaves : child.second->children) {
                 if(!leaves.second->is_leaf())
@@ -57,7 +57,7 @@ namespace stardec {
         max(node, discount_factor);
     }
 
-    void hurwicz(std::shared_ptr<LeafNode> node, double alpha, double discount_factor) {
+    void hurwicz(std::shared_ptr<leafnode> node, double alpha, double discount_factor) {
         for(auto child : node->children) {
             for(auto leaves : child.second->children) {
                 if(!leaves.second->is_leaf())

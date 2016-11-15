@@ -7,25 +7,25 @@
 namespace stardec {
     enum oper {AND_OP=1, OR_OP=2, NOT_OP=3, ARG_OP=4};
 
-    class LogicalOperator {
+    class logicaloperator {
     public:
-        static LogicalOperator *BuildArg(std::string a) {
-            return new LogicalOperator(oper::ARG_OP, nullptr, nullptr, a);
+        static logicaloperator *build_arg(std::string a) {
+            return new logicaloperator(oper::ARG_OP, nullptr, nullptr, a);
         }
 
-        static LogicalOperator *BuildNot(LogicalOperator *log) {
-            return new LogicalOperator(oper::NOT_OP, log, nullptr, "");
+        static logicaloperator *build_not(logicaloperator *log) {
+            return new logicaloperator(oper::NOT_OP, log, nullptr, "");
         }
 
-        static LogicalOperator *BuildOr(LogicalOperator *left, LogicalOperator *right) {
-            return new LogicalOperator(oper::OR_OP, left, right, "");
+        static logicaloperator *build_or(logicaloperator *left, logicaloperator *right) {
+            return new logicaloperator(oper::OR_OP, left, right, "");
         }
 
-        static LogicalOperator *BuildAnd(LogicalOperator *left, LogicalOperator *right) {
-            return new LogicalOperator(oper::AND_OP, left, right, "");
+        static logicaloperator *build_and(logicaloperator *left, logicaloperator *right) {
+            return new logicaloperator(oper::AND_OP, left, right, "");
         }
 
-        ~LogicalOperator() {
+        ~logicaloperator() {
             if(left != nullptr)
                 delete left;
             if(right != nullptr)
@@ -43,11 +43,11 @@ namespace stardec {
         }
 
         oper type;
-        LogicalOperator *left;
-        LogicalOperator *right;
+        logicaloperator *left;
+        logicaloperator *right;
         std::string arg;
     private:
-        LogicalOperator(oper t, LogicalOperator *l, LogicalOperator *r, std::string a) :
+        logicaloperator(oper t, logicaloperator *l, logicaloperator *r, std::string a) :
                 type(t), left(l), right(r), arg(a) {}
     };
 }

@@ -3,25 +3,29 @@
 #include "graph.h"
 
 namespace stardec {
-    void Graph::add_argument(const std::shared_ptr<Argument> &argument) {
-        _arguments[argument->label()] = argument;
+    void graph::set_distribution(const std::vector<std::shared_ptr<splittercell::flock>> &flocks) {
+      _distribution = splittercell::distribution(flocks);
     }
 
-    void Graph::attack(const std::string &arg1, const std::string &arg2) {
+    void graph::add_argument(const std::shared_ptr<argument> &arg) {
+        _arguments[arg->label()] = arg;
+    }
+
+    void graph::attack(const std::string &arg1, const std::string &arg2) {
         _arguments[arg1]->add_attack_to(_arguments[arg2]);
         _arguments[arg2]->add_attack_from(_arguments[arg1]);
     }
 
-    void Graph::set_goals(LogicalOperator *tree) {
+    void graph::set_goals(logicaloperator *tree) {
         _goalformula = build_goal_tree(tree);
         delete tree;
     }
 
-    std::function<bool(std::vector<std::string>)> Graph::build_goal_tree(LogicalOperator *tree) {
-        std::function<bool(std::vector<std::string>)> ret;
+    std::function<bool(const std::vector<std::string>&)> graph::build_goal_tree(logicaloperator *tree) {
+        std::function<bool(const std::vector<std::string>&)> ret;
         if(tree == nullptr) return nullptr;
         if(tree->left == nullptr && tree->right == nullptr)
-            ret = std::bind(&Argument::is_acceptable, std::cref(argument(tree->arg)), std::cref(*this), std::placeholders::_1);
+            ret = std::bind(&argument::is_acceptable, std::cref(arg(tree->arg)), std::cref(*this), std::placeholders::_1);
         else {
             auto left = build_goal_tree(tree->left);
             auto right = build_goal_tree(tree->right);
@@ -39,9 +43,9 @@ namespace stardec {
         return ret;
     }
 
-    std::set<std::string> Graph::arguments_labels() const {
+    std::set<std::string> graph::arguments_labels() const {
         std::set<std::string> args;
-        std::transform(arguments().begin(), arguments().end(), std::inserter(args, args.end()),
+        std::transform(arguments().cbegin(), arguments().cend(), std::inserter(args, args.end()),
                        [](auto pair){return pair.second->label();});
         return args;
     }

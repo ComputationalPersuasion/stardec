@@ -40,11 +40,13 @@
 extern int yydebug;
 #endif
 /* "%code requires" blocks.  */
-#line 1 "parser/parser.ypp" /* yacc.c:1909  */
+#line 3 "parser/parser.ypp" /* yacc.c:1909  */
 
-#include "logicaloperator.h"
+  #include "logicaloperator.h"
+  #include "graph.h"
+  #include <vector>
 
-#line 48 "include/parser.hpp" /* yacc.c:1909  */
+#line 50 "include/parser.hpp" /* yacc.c:1909  */
 
 /* Token type.  */
 #ifndef YYTOKENTYPE
@@ -54,14 +56,16 @@ extern int yydebug;
     ARG = 258,
     ATT = 259,
     GOAL = 260,
-    LEFTPAR = 261,
-    RIGHTPAR = 262,
-    DOT = 263,
-    COMMA = 264,
-    AND = 265,
-    OR = 266,
-    NOT = 267,
-    LABEL = 268
+    FLOCK = 261,
+    LEFTPAR = 262,
+    RIGHTPAR = 263,
+    DOT = 264,
+    COMMA = 265,
+    AND = 266,
+    OR = 267,
+    NOT = 268,
+    COND = 269,
+    LABEL = 270
   };
 #endif
 
@@ -70,12 +74,13 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 28 "parser/parser.ypp" /* yacc.c:1909  */
+#line 35 "parser/parser.ypp" /* yacc.c:1909  */
 
     char *str;
-    stardec::LogicalOperator *ope;
+    stardec::logicaloperator *ope;
+    std::vector<char *> *arglabels;
 
-#line 79 "include/parser.hpp" /* yacc.c:1909  */
+#line 84 "include/parser.hpp" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;
@@ -86,6 +91,6 @@ typedef union YYSTYPE YYSTYPE;
 
 extern YYSTYPE yylval;
 
-int yyparse (void);
+int yyparse (stardec::graph *g);
 
 #endif /* !YY_YY_INCLUDE_PARSER_HPP_INCLUDED  */

@@ -7,37 +7,37 @@
 #include <vector>
 
 namespace stardec {
-    class Graph;
+    class graph;
 
-    class Argument {
+    class argument {
     public:
-        Argument(std::string label, unsigned int id);
+        argument(std::string label, unsigned int id);
 
         unsigned int get_component() const {return _component;}
         void set_component(unsigned int component) {_component = component;}
         unsigned int id() const {return _id;}
         const std::string &label() const {return _label;}
-        const std::map<unsigned int, std::shared_ptr<Argument>> get_attackers() const {return _is_atked_by;}
-        const std::map<unsigned int, std::shared_ptr<Argument>> get_attacked() const {return _attacks;}
+        const std::map<unsigned int, std::shared_ptr<argument>> get_attackers() const {return _is_atked_by;}
+        const std::map<unsigned int, std::shared_ptr<argument>> get_attacked() const {return _attacks;}
 
         void reset_belief();
 
         void propagate_component();
 
-        void add_attack_to(const std::shared_ptr<Argument> &atked);
-        void add_attack_from(const std::shared_ptr<Argument> &attacker);
+        void add_attack_to(const std::shared_ptr<argument> &atked);
+        void add_attack_from(const std::shared_ptr<argument> &attacker);
 
-        bool is_acceptable(const Graph &graph, const std::vector<std::string> &execution) const;
+        bool is_acceptable(const graph &graph, const std::vector<std::string> &execution) const;
 
     private:
         std::string _label;
         unsigned int _id, _component;
         double _belief, _initial_belief;
-        std::map<unsigned int, std::shared_ptr<Argument>> _attacks, _is_atked_by;
+        std::map<unsigned int, std::shared_ptr<argument>> _attacks, _is_atked_by;
     };
 
     enum state {OUT, IN, UNDEC};
-    void change_argument_state(std::unordered_map<std::string, state> &map, const Graph &graph, const std::string &arg, const std::string &entrypoint);
+    void change_argument_state(std::unordered_map<std::string, state> &map, const graph &graph, const std::string &arg, const std::string &entrypoint);
 }
 
 

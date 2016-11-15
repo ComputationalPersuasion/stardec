@@ -5,16 +5,16 @@
 #include "graph.h"
 
 namespace stardec {
-    void change_argument_state(std::unordered_map<std::string, state> &map, const Graph &graph, const std::string &arg, const std::string &entrypoint) {
-        auto argument = graph.argument(arg);
+    void change_argument_state(std::unordered_map<std::string, state> &map, const graph &g, const std::string &arg, const std::string &entrypoint) {
+        auto argument = g.arg(arg);
         auto attackers = argument->get_attackers();
         bool propagate = false;
-        if( std::any_of(attackers.cbegin(), attackers.cend(), [&map](auto &arg){return map[arg.second->get_label()] == IN;}) ) {
+        if( std::any_of(attackers.cbegin(), attackers.cend(), [&map](auto &arg){return map[arg.second->label()] == IN;}) ) {
             if(map[arg] != OUT) {
                 map[arg] = OUT;
                 propagate = true;
             }
-        } else if( std::any_of(attackers.cbegin(), attackers.cend(), [&map](auto &arg){return map[arg.second->get_label()] == UNDEC;}) ) {
+        } else if( std::any_of(attackers.cbegin(), attackers.cend(), [&map](auto &arg){return map[arg.second->label()] == UNDEC;}) ) {
             if(map[arg] != UNDEC) {
                 map[arg] = UNDEC;
                 propagate = true;
@@ -29,22 +29,22 @@ namespace stardec {
                 auto attacked_label = attacked.second->label();
                 if(attacked_label == entrypoint && map[attacked_label] == IN && map[arg] == IN)
                     map[arg] = UNDEC;
-                change_argument_state(map, graph, attacked_label, entrypoint);
+                change_argument_state(map, g, attacked_label, entrypoint);
             }
         }
     }
 
-    Argument::Argument(std::string label, unsigned int id) {
+    argument::argument(std::string label, unsigned int id) {
         _label = label;
         _id = id;
         _initial_belief = _belief = 0.5;
     }
 
-    void Argument::reset_belief() {
+    void argument::reset_belief() {
         _belief = _initial_belief;
     }
 
-    void Argument::propagate_component() {
+    void argument::propagate_component() {
         for (auto a : _attacks)
             if (a.second->get_component() != this->_component) {
                 a.second->set_component(this->_component);
@@ -58,21 +58,18 @@ namespace stardec {
             }
     }
 
-    void Argument::add_attack_to(const std::shared_ptr<Argument> &atked) {
+    void argument::add_attack_to(const std::shared_ptr<argument> &atked) {
         _attacks[atked->_id] = atked;
     }
 
-    void Argument::add_attack_from(const std::shared_ptr<Argument> &attacker) {
+    void argument::add_attack_from(const std::shared_ptr<argument> &attacker) {
         _is_atked_by[attacker->_id] = attacker;
     }
 
-    bool Argument::is_acceptable(const Graph &graph, const std::vector<std::string> &execution) const {
+    bool argument::is_acceptable(const graph &g, const std::vector<std::string> &execution) const {
         std::unordered_map<std::string, state> statemap;
         for(auto arg : execution)
-            change_argument_state(statemap, graph, arg, arg);
+            change_argument_state(statemap, g, arg, arg);
         return statemap[_label] == IN;
     }
 }
-
-
-
