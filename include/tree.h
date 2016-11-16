@@ -23,6 +23,7 @@ namespace stardec {
           const valuationfunction &valuation_function,
           const aggregationfunction &aggregation_function,
           unsigned int horizon);
+        std::string to_dot() const;
 
     private:
         std::unique_ptr<node> _root;

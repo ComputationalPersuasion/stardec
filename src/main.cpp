@@ -50,7 +50,8 @@ int main(int argc, char *argv[]) {
     fclose(yyin);
 
     std::cout << g.distribution().to_str() << std::endl;
-    stardec::tree(g, {stardec::remove_duplicate}, stardec::ambivalent, stardec::present, stardec::average, 0.9);
+    stardec::tree t(g, {stardec::remove_duplicate}, stardec::ambivalent, stardec::present, stardec::average, 0.9);
+    std::cout << t.to_dot() << std::endl;
 
     return 0;
 }

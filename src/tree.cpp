@@ -1,6 +1,7 @@
 #include <memory>
 #include <vector>
 #include <algorithm>
+#include <sstream>
 #include "tree.h"
 #include "distribution.h"
 
@@ -40,5 +41,34 @@ namespace stardec {
             filter(args, execution);
         for(auto arg : args)
             _root->add_child(build_execution(g, arg, execution, filter_functions, update_function, valuation_function, aggregation_function, horizon));
+    }
+
+    void build_children(std::stringstream &s, const std::string &parent, const std::shared_ptr<leafnode> &node, bool square, unsigned int &id) {
+        std::string p = "node" + std::to_string(++id), shape, edge;
+        s << p;
+        if(node->is_leaf())
+            shape = "none, label=\"" + std::to_string(node->value) + "\"]";
+        else {
+            shape = (square ? "square]" : "circle]");
+            edge  = " [label=\"" + node->label + "\"]";
+        }
+
+        s << " [shape=" << shape << std::endl;
+        s << parent << " -- " << p << edge << std::endl;
+
+        for(auto c : node->children)
+            build_children(s, p, c.second, !square, id);
+    }
+
+    std::string tree::to_dot() const {
+        unsigned int id = 0;
+        std::stringstream s;
+        s << "graph tree {" << std::endl;
+        s << "rankdir=LR" << std::endl;
+        s << "root [shape=square]" << std::endl;
+        for(auto c : _root->children)
+            build_children(s, "root", c.second, false, id);
+        s << "}" << std::endl;
+        return s.str();
     }
 }
