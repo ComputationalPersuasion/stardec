@@ -1,5 +1,11 @@
 #include <iostream>
 #include "graph.h"
+#include "tree.h"
+#include "filter_functions.h"
+#include "decision_functions.h"
+#include "valuation_functions.h"
+#include "update_functions.h"
+#include "aggregation_functions.h"
 #include "cxxopts.hpp"
 extern "C" {
     #include "parser.hpp"
@@ -39,12 +45,12 @@ int main(int argc, char *argv[]) {
     }
 
     yyin = fopen(inputfilename.c_str(), "r");
-    stardec::graph *g = new stardec::graph();
+    stardec::graph g;
     yyparse(g);
     fclose(yyin);
 
-    std::cout << g->distribution().to_str() << std::endl;
+    std::cout << g.distribution().to_str() << std::endl;
+    stardec::tree(g, {stardec::remove_duplicate}, stardec::ambivalent, stardec::present, stardec::average, 0.9);
 
-    delete g;
     return 0;
 }

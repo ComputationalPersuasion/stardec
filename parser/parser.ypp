@@ -1,4 +1,4 @@
-%parse-param {stardec::graph *g}
+%parse-param {stardec::graph &g}
 
 %code requires {
   #include "logicaloperator.h"
@@ -17,7 +17,7 @@
 
   extern "C"
   {
-      int yyparse(stardec::graph*);
+      int yyparse(stardec::graph&);
       int yylex(void);
   }
 
@@ -26,7 +26,7 @@
   unsigned int index = 0;
   std::unordered_set<std::string> args;
 
-  void yyerror (stardec::graph *g, char const *s) {
+  void yyerror (stardec::graph &g, char const *s) {
      fprintf (stderr, "%s\n", s);
    }
 %}
@@ -45,7 +45,7 @@
 %%
 
 arggraph : lines {
-  g->set_distribution(flocks);
+  g.set_distribution(flocks);
 }
 
 lines : arg
@@ -59,7 +59,7 @@ lines : arg
 
 arg: ARG LEFTPAR LABEL RIGHTPAR DOT {
     auto arg = std::make_shared<stardec::argument>($3, index++);
-    g->add_argument(arg);
+    g.add_argument(arg);
     std::cout << "Argument parsed: " << arg->label() << std::endl;
     args.insert($3);
     free($3);
@@ -76,10 +76,10 @@ att: ATT LEFTPAR LABEL COMMA LABEL RIGHTPAR DOT {
          free($5);
          YYERROR;
     }
-    g->attack($3, $5); free($3); free($5);
+    g.attack($3, $5); free($3); free($5);
 }
 
-goallist: GOAL logical DOT {std::cout << "Parsed goal: " << $2->to_s() << std::endl; g->set_goals($2);}
+goallist: GOAL logical DOT {std::cout << "Parsed goal: " << $2->to_s() << std::endl; g.set_goals($2);}
 
 logical: LABEL {
     if(args.find($1) == args.end()) {
@@ -96,15 +96,15 @@ logical: LABEL {
 
 flock: FLOCK LEFTPAR labellist RIGHTPAR DOT {
   std::vector<unsigned int> indexes;
-  std::transform($3->begin(), $3->end(), std::back_inserter(indexes), [g](auto s){return g->id_of(s);});
+  std::transform($3->begin(), $3->end(), std::back_inserter(indexes), [g](auto s){return g.id_of(s);});
   for(auto s : *$3) free(s);
   delete $3;
   flocks.push_back(std::make_shared<splittercell::flock>(indexes));
 }
       | FLOCK LEFTPAR labellist COND labellist RIGHTPAR DOT {
   std::vector<unsigned int> conditioned, conditioning;
-  std::transform($3->begin(), $3->end(), std::back_inserter(conditioned), [g](auto s){return g->id_of(s);});
-  std::transform($5->begin(), $5->end(), std::back_inserter(conditioning), [g](auto s){return g->id_of(s);});
+  std::transform($3->begin(), $3->end(), std::back_inserter(conditioned), [g](auto s){return g.id_of(s);});
+  std::transform($5->begin(), $5->end(), std::back_inserter(conditioning), [g](auto s){return g.id_of(s);});
   for(auto s : *$3) free(s); delete $3;
   for(auto s : *$5) free(s); delete $5;
   flocks.push_back(std::make_shared<splittercell::flock>(conditioned, conditioning));

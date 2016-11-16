@@ -23,10 +23,13 @@ namespace stardec {
         void set_goals(logicaloperator *tree);
         void set_distribution(const std::vector<std::shared_ptr<splittercell::flock>> &flocks);
         const splittercell::distribution& distribution() const {return _distribution;}
+        const std::vector<std::shared_ptr<argument>> &goals() const {return _goals;}
+        bool logicalvalid(const std::vector<std::string> &execution) const {return _goalformula(execution);}
 
     private:
         std::function<bool(const std::vector<std::string>&)> build_goal_tree(logicaloperator *tree);
 
+        std::vector<std::shared_ptr<argument>> _goals;
         std::unordered_map<std::string, std::shared_ptr<argument>> _arguments;
         std::function<bool(std::vector<std::string>)> _goalformula;
         splittercell::distribution _distribution;

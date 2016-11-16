@@ -24,8 +24,10 @@ namespace stardec {
     std::function<bool(const std::vector<std::string>&)> graph::build_goal_tree(logicaloperator *tree) {
         std::function<bool(const std::vector<std::string>&)> ret;
         if(tree == nullptr) return nullptr;
-        if(tree->left == nullptr && tree->right == nullptr)
+        if(tree->left == nullptr && tree->right == nullptr) {
             ret = std::bind(&argument::is_acceptable, std::cref(arg(tree->arg)), std::cref(*this), std::placeholders::_1);
+            _goals.push_back(arg(tree->arg));
+        }
         else {
             auto left = build_goal_tree(tree->left);
             auto right = build_goal_tree(tree->right);

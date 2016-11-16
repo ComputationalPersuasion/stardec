@@ -75,7 +75,7 @@
 
   extern "C"
   {
-      int yyparse(stardec::graph*);
+      int yyparse(stardec::graph&);
       int yylex(void);
   }
 
@@ -84,7 +84,7 @@
   unsigned int index = 0;
   std::unordered_set<std::string> args;
 
-  void yyerror (stardec::graph *g, char const *s) {
+  void yyerror (stardec::graph &g, char const *s) {
      fprintf (stderr, "%s\n", s);
    }
 
@@ -169,7 +169,7 @@ typedef union YYSTYPE YYSTYPE;
 
 extern YYSTYPE yylval;
 
-int yyparse (stardec::graph *g);
+int yyparse (stardec::graph &g);
 
 #endif /* !YY_YY_INCLUDE_PARSER_HPP_INCLUDED  */
 
@@ -671,7 +671,7 @@ do {                                                                      \
 `----------------------------------------*/
 
 static void
-yy_symbol_value_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep, stardec::graph *g)
+yy_symbol_value_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep, stardec::graph &g)
 {
   FILE *yyo = yyoutput;
   YYUSE (yyo);
@@ -691,7 +691,7 @@ yy_symbol_value_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvalue
 `--------------------------------*/
 
 static void
-yy_symbol_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep, stardec::graph *g)
+yy_symbol_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep, stardec::graph &g)
 {
   YYFPRINTF (yyoutput, "%s %s (",
              yytype < YYNTOKENS ? "token" : "nterm", yytname[yytype]);
@@ -729,7 +729,7 @@ do {                                                            \
 `------------------------------------------------*/
 
 static void
-yy_reduce_print (yytype_int16 *yyssp, YYSTYPE *yyvsp, int yyrule, stardec::graph *g)
+yy_reduce_print (yytype_int16 *yyssp, YYSTYPE *yyvsp, int yyrule, stardec::graph &g)
 {
   unsigned long int yylno = yyrline[yyrule];
   int yynrhs = yyr2[yyrule];
@@ -1009,7 +1009,7 @@ yysyntax_error (YYSIZE_T *yymsg_alloc, char **yymsg,
 `-----------------------------------------------*/
 
 static void
-yydestruct (const char *yymsg, int yytype, YYSTYPE *yyvaluep, stardec::graph *g)
+yydestruct (const char *yymsg, int yytype, YYSTYPE *yyvaluep, stardec::graph &g)
 {
   YYUSE (yyvaluep);
   YYUSE (g);
@@ -1039,7 +1039,7 @@ int yynerrs;
 `----------*/
 
 int
-yyparse (stardec::graph *g)
+yyparse (stardec::graph &g)
 {
     int yystate;
     /* Number of tokens to shift before error messages enabled.  */
@@ -1276,7 +1276,7 @@ yyreduce:
         case 2:
 #line 47 "parser/parser.ypp" /* yacc.c:1646  */
     {
-  g->set_distribution(flocks);
+  g.set_distribution(flocks);
 }
 #line 1282 "src/parser.cpp" /* yacc.c:1646  */
     break;
@@ -1285,7 +1285,7 @@ yyreduce:
 #line 60 "parser/parser.ypp" /* yacc.c:1646  */
     {
     auto arg = std::make_shared<stardec::argument>((yyvsp[-2].str), index++);
-    g->add_argument(arg);
+    g.add_argument(arg);
     std::cout << "Argument parsed: " << arg->label() << std::endl;
     args.insert((yyvsp[-2].str));
     free((yyvsp[-2].str));
@@ -1306,14 +1306,14 @@ yyreduce:
          free((yyvsp[-2].str));
          YYERROR;
     }
-    g->attack((yyvsp[-4].str), (yyvsp[-2].str)); free((yyvsp[-4].str)); free((yyvsp[-2].str));
+    g.attack((yyvsp[-4].str), (yyvsp[-2].str)); free((yyvsp[-4].str)); free((yyvsp[-2].str));
 }
 #line 1312 "src/parser.cpp" /* yacc.c:1646  */
     break;
 
   case 13:
 #line 82 "parser/parser.ypp" /* yacc.c:1646  */
-    {std::cout << "Parsed goal: " << (yyvsp[-1].ope)->to_s() << std::endl; g->set_goals((yyvsp[-1].ope));}
+    {std::cout << "Parsed goal: " << (yyvsp[-1].ope)->to_s() << std::endl; g.set_goals((yyvsp[-1].ope));}
 #line 1318 "src/parser.cpp" /* yacc.c:1646  */
     break;
 
@@ -1358,7 +1358,7 @@ yyreduce:
 #line 97 "parser/parser.ypp" /* yacc.c:1646  */
     {
   std::vector<unsigned int> indexes;
-  std::transform((yyvsp[-2].arglabels)->begin(), (yyvsp[-2].arglabels)->end(), std::back_inserter(indexes), [g](auto s){return g->id_of(s);});
+  std::transform((yyvsp[-2].arglabels)->begin(), (yyvsp[-2].arglabels)->end(), std::back_inserter(indexes), [g](auto s){return g.id_of(s);});
   for(auto s : *(yyvsp[-2].arglabels)) free(s);
   delete (yyvsp[-2].arglabels);
   flocks.push_back(std::make_shared<splittercell::flock>(indexes));
@@ -1370,8 +1370,8 @@ yyreduce:
 #line 104 "parser/parser.ypp" /* yacc.c:1646  */
     {
   std::vector<unsigned int> conditioned, conditioning;
-  std::transform((yyvsp[-4].arglabels)->begin(), (yyvsp[-4].arglabels)->end(), std::back_inserter(conditioned), [g](auto s){return g->id_of(s);});
-  std::transform((yyvsp[-2].arglabels)->begin(), (yyvsp[-2].arglabels)->end(), std::back_inserter(conditioning), [g](auto s){return g->id_of(s);});
+  std::transform((yyvsp[-4].arglabels)->begin(), (yyvsp[-4].arglabels)->end(), std::back_inserter(conditioned), [g](auto s){return g.id_of(s);});
+  std::transform((yyvsp[-2].arglabels)->begin(), (yyvsp[-2].arglabels)->end(), std::back_inserter(conditioning), [g](auto s){return g.id_of(s);});
   for(auto s : *(yyvsp[-4].arglabels)) free(s); delete (yyvsp[-4].arglabels);
   for(auto s : *(yyvsp[-2].arglabels)) free(s); delete (yyvsp[-2].arglabels);
   flocks.push_back(std::make_shared<splittercell::flock>(conditioned, conditioning));
