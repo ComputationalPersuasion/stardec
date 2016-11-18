@@ -50,7 +50,8 @@ int main(int argc, char *argv[]) {
     fclose(yyin);
 
     std::cout << g.distribution().to_str() << std::endl;
-    stardec::tree t(g, {stardec::remove_duplicate}, stardec::ambivalent, stardec::present, stardec::average, 0.9);
+    stardec::tree t(g, {stardec::remove_duplicate, std::bind(stardec::remove_goal_atks, std::cref(g), std::placeholders::_1, std::placeholders::_2)}, stardec::ambivalent, stardec::present, stardec::average, 0.9);
+    t.optimize(std::bind(stardec::maximin, std::placeholders::_1, 0.9));
     std::cout << t.to_dot() << std::endl;
 
     return 0;

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5.1)
+cmake_minimum_required(VERSION 3.6)
 project(stardec)
 
 find_package(BISON)
@@ -21,6 +21,7 @@ include_directories(include)
 include_directories(lib_headers)
 include_directories(lib/splittercell/include)
 
-set(SOURCE_FILES src/main.cpp src/graph.cpp src/argument.cpp src/tree.cpp)
-add_executable(stardec ${SOURCE_FILES} ${FLEX_BISON_FILES})
-target_link_libraries(stardec splittercell)
+set(SOURCE_FILES src/graph.cpp src/argument.cpp src/tree.cpp ${FLEX_BISON_FILES})
+add_library(stardec ${SOURCE_FILES})
+add_executable(stardecbin main.cpp)
+target_link_libraries(stardecbin splittercell stardec)

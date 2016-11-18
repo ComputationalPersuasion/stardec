@@ -15,18 +15,19 @@ namespace stardec {
     typedef std::function<void(splittercell::distribution&, const argument&)> updatefunction;
     typedef std::function<std::unordered_map<unsigned int, double>(const graph&, const std::vector<std::string>&)> valuationfunction;
     typedef std::function<double(const std::unordered_map<unsigned int, double> &, const std::unordered_map<unsigned int, double> &)> aggregationfunction;
+    typedef std::function<void(std::shared_ptr<leafnode> node)> decisionfunction;
 
     class tree {
     public:
         tree(const graph &g, const std::vector<filterfunction> &filter_functions,
-          const updatefunction &update_function,
-          const valuationfunction &valuation_function,
-          const aggregationfunction &aggregation_function,
-          unsigned int horizon);
+            const updatefunction &update_function, const valuationfunction &valuation_function,
+            const aggregationfunction &aggregation_function, unsigned int horizon);
         std::string to_dot() const;
 
+        void optimize(const decisionfunction &decision_function);
+
     private:
-        std::unique_ptr<node> _root;
+        std::shared_ptr<node> _root;
     };
 }
 

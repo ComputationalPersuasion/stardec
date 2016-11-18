@@ -6,6 +6,7 @@
 #include "graph.h"
 
 namespace stardec {
+    //All goals, not just the positive ones => do not use with logical expression containing NOTs.
     std::unordered_map<unsigned int, double> present(const graph &g, const std::vector<std::string> &execution) {
         std::unordered_map<unsigned int, double> values;
         for(auto arg : g.goals())

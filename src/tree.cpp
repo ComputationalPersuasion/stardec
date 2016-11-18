@@ -16,7 +16,8 @@ namespace stardec {
             filter(args, execution);
         if(args.empty()) {
             splittercell::distribution dist(g.distribution());
-            update_function(dist, *(g.arg(arg)));
+            for(auto a : execution)
+                update_function(dist, *(g.arg(a)));
             auto values = valuation_function(g, execution);
             auto goals = g.goals();
             std::vector<unsigned int> goalsids;
@@ -33,7 +34,7 @@ namespace stardec {
     tree::tree(const graph &g, const std::vector<filterfunction> &filter_functions, const updatefunction &update_function,
                const valuationfunction &valuation_function, const aggregationfunction &aggregation_function,
                unsigned int horizon) {
-        _root = std::make_unique<node>("");
+        _root = std::make_shared<node>("");
 
         std::set<std::string> args = g.arguments_labels();
         std::vector<std::string> execution;
@@ -48,11 +49,9 @@ namespace stardec {
         s << p;
         if(node->is_leaf())
             shape = "none, label=\"" + std::to_string(node->value) + "\"]";
-        else {
+        else
             shape = (square ? "square]" : "circle]");
-            edge  = " [label=\"" + node->label + "\"]";
-        }
-
+        edge  = " [label=\"" + node->label + "\"]";
         s << " [shape=" << shape << std::endl;
         s << parent << " -- " << p << edge << std::endl;
 
@@ -70,5 +69,9 @@ namespace stardec {
             build_children(s, "root", c.second, false, id);
         s << "}" << std::endl;
         return s.str();
+    }
+
+    void tree::optimize(const decisionfunction &decision_function) {
+        decision_function(_root);
     }
 }

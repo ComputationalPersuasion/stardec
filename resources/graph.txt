@@ -1,6 +1,8 @@
 arg(a).
 arg(b).
 arg(c).
-goal(a AND NOT (b OR NOT c)).
+att(b,a).
+att(c,b).
+goal(a).
 flock(a,b|c).
 flock(c).
