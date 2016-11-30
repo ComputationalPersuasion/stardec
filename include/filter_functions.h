@@ -6,6 +6,7 @@
 #include <vector>
 #include <algorithm>
 #include <iterator>
+#include "graph.h"
 
 namespace stardec {
     //Consider all goals, do not use with logical NOTs.
@@ -22,6 +23,19 @@ namespace stardec {
     void remove_duplicate(std::set<std::string> &considering, const std::vector<std::string> &current_exec) {
         for(auto a : current_exec)
             considering.erase(a);
+    }
+
+    void relevant(const graph &g, std::set<std::string> &considering, const std::vector<std::string> &current_exec) {
+        if(current_exec.empty())
+            return;
+        std::set<std::string> relevant_args;
+        for(auto arg : current_exec) {
+            auto a = g.arg(arg);
+            for(auto atker : a->get_attackers())
+                if(considering.find(atker.second->label()) != considering.end())
+                    relevant_args.insert(atker.second->label());
+        }
+        considering = relevant_args;
     }
 }
 

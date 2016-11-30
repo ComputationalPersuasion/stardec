@@ -1,0 +1,8 @@
+arg(a).
+arg(b).
+arg(c).
+att(b,a).
+att(c,b).
+goal(a).
+flock(a,b|c).
+flock(c).

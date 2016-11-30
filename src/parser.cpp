@@ -75,17 +75,17 @@
 
   extern "C"
   {
-      int yyparse(stardec::graph&);
+      int yyparse(stardec::graph&, bool);
       int yylex(void);
   }
 
-  //std::unique_ptr<stardec::graph> g = std::make_unique<stardec::graph>();
-  std::vector<std::shared_ptr<splittercell::flock>> flocks;
+  std::vector<std::unique_ptr<splittercell::flock>> flocks;
   unsigned int index = 0;
   std::unordered_set<std::string> args;
 
-  void yyerror (stardec::graph &g, char const *s) {
+  void yyerror (stardec::graph &g, bool v, char const *s) {
      fprintf (stderr, "%s\n", s);
+     exit(-1);
    }
 
 #line 92 "src/parser.cpp" /* yacc.c:339  */
@@ -169,7 +169,7 @@ typedef union YYSTYPE YYSTYPE;
 
 extern YYSTYPE yylval;
 
-int yyparse (stardec::graph &g);
+int yyparse (stardec::graph &g, bool v);
 
 #endif /* !YY_YY_INCLUDE_PARSER_HPP_INCLUDED  */
 
@@ -475,8 +475,8 @@ static const yytype_uint8 yytranslate[] =
 static const yytype_uint8 yyrline[] =
 {
        0,    47,    47,    51,    52,    53,    54,    55,    56,    57,
-      58,    60,    68,    82,    84,    92,    93,    94,    95,    97,
-     104,   113,   114
+      58,    60,    69,    83,    85,    93,    94,    95,    96,    98,
+     105,   114,   115
 };
 #endif
 
@@ -623,7 +623,7 @@ do                                                              \
     }                                                           \
   else                                                          \
     {                                                           \
-      yyerror (g, YY_("syntax error: cannot back up")); \
+      yyerror (g, v, YY_("syntax error: cannot back up")); \
       YYERROR;                                                  \
     }                                                           \
 while (0)
@@ -660,7 +660,7 @@ do {                                                                      \
     {                                                                     \
       YYFPRINTF (stderr, "%s ", Title);                                   \
       yy_symbol_print (stderr,                                            \
-                  Type, Value, g); \
+                  Type, Value, g, v); \
       YYFPRINTF (stderr, "\n");                                           \
     }                                                                     \
 } while (0)
@@ -671,11 +671,12 @@ do {                                                                      \
 `----------------------------------------*/
 
 static void
-yy_symbol_value_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep, stardec::graph &g)
+yy_symbol_value_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep, stardec::graph &g, bool v)
 {
   FILE *yyo = yyoutput;
   YYUSE (yyo);
   YYUSE (g);
+  YYUSE (v);
   if (!yyvaluep)
     return;
 # ifdef YYPRINT
@@ -691,12 +692,12 @@ yy_symbol_value_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvalue
 `--------------------------------*/
 
 static void
-yy_symbol_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep, stardec::graph &g)
+yy_symbol_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep, stardec::graph &g, bool v)
 {
   YYFPRINTF (yyoutput, "%s %s (",
              yytype < YYNTOKENS ? "token" : "nterm", yytname[yytype]);
 
-  yy_symbol_value_print (yyoutput, yytype, yyvaluep, g);
+  yy_symbol_value_print (yyoutput, yytype, yyvaluep, g, v);
   YYFPRINTF (yyoutput, ")");
 }
 
@@ -729,7 +730,7 @@ do {                                                            \
 `------------------------------------------------*/
 
 static void
-yy_reduce_print (yytype_int16 *yyssp, YYSTYPE *yyvsp, int yyrule, stardec::graph &g)
+yy_reduce_print (yytype_int16 *yyssp, YYSTYPE *yyvsp, int yyrule, stardec::graph &g, bool v)
 {
   unsigned long int yylno = yyrline[yyrule];
   int yynrhs = yyr2[yyrule];
@@ -743,7 +744,7 @@ yy_reduce_print (yytype_int16 *yyssp, YYSTYPE *yyvsp, int yyrule, stardec::graph
       yy_symbol_print (stderr,
                        yystos[yyssp[yyi + 1 - yynrhs]],
                        &(yyvsp[(yyi + 1) - (yynrhs)])
-                                              , g);
+                                              , g, v);
       YYFPRINTF (stderr, "\n");
     }
 }
@@ -751,7 +752,7 @@ yy_reduce_print (yytype_int16 *yyssp, YYSTYPE *yyvsp, int yyrule, stardec::graph
 # define YY_REDUCE_PRINT(Rule)          \
 do {                                    \
   if (yydebug)                          \
-    yy_reduce_print (yyssp, yyvsp, Rule, g); \
+    yy_reduce_print (yyssp, yyvsp, Rule, g, v); \
 } while (0)
 
 /* Nonzero means print parse trace.  It is left uninitialized so that
@@ -1009,10 +1010,11 @@ yysyntax_error (YYSIZE_T *yymsg_alloc, char **yymsg,
 `-----------------------------------------------*/
 
 static void
-yydestruct (const char *yymsg, int yytype, YYSTYPE *yyvaluep, stardec::graph &g)
+yydestruct (const char *yymsg, int yytype, YYSTYPE *yyvaluep, stardec::graph &g, bool v)
 {
   YYUSE (yyvaluep);
   YYUSE (g);
+  YYUSE (v);
   if (!yymsg)
     yymsg = "Deleting";
   YY_SYMBOL_PRINT (yymsg, yytype, yyvaluep, yylocationp);
@@ -1039,7 +1041,7 @@ int yynerrs;
 `----------*/
 
 int
-yyparse (stardec::graph &g)
+yyparse (stardec::graph &g, bool v)
 {
     int yystate;
     /* Number of tokens to shift before error messages enabled.  */
@@ -1276,9 +1278,9 @@ yyreduce:
         case 2:
 #line 47 "parser/parser.ypp" /* yacc.c:1646  */
     {
-  g.set_distribution(flocks);
+    g.set_distribution(flocks);
 }
-#line 1282 "src/parser.cpp" /* yacc.c:1646  */
+#line 1284 "src/parser.cpp" /* yacc.c:1646  */
     break;
 
   case 11:
@@ -1286,113 +1288,114 @@ yyreduce:
     {
     auto arg = std::make_shared<stardec::argument>((yyvsp[-2].str), index++);
     g.add_argument(arg);
-    std::cout << "Argument parsed: " << arg->label() << std::endl;
+    if(v)
+        std::cout << "Argument parsed: " << arg->label() << std::endl;
     args.insert((yyvsp[-2].str));
     free((yyvsp[-2].str));
 }
-#line 1294 "src/parser.cpp" /* yacc.c:1646  */
+#line 1297 "src/parser.cpp" /* yacc.c:1646  */
     break;
 
   case 12:
-#line 68 "parser/parser.ypp" /* yacc.c:1646  */
+#line 69 "parser/parser.ypp" /* yacc.c:1646  */
     {
     if(args.find((yyvsp[-4].str)) == args.end()) {
-         yyerror(g, ("Argument " + std::string((yyvsp[-4].str)) + " is not declared.").c_str());
+         yyerror(g, v, ("Argument " + std::string((yyvsp[-4].str)) + " is not declared.").c_str());
          free((yyvsp[-4].str));
          YYERROR;
     }
     if(args.find((yyvsp[-2].str)) == args.end()) {
-         yyerror(g, ("Argument " + std::string((yyvsp[-2].str)) + " is not declared.").c_str());
+         yyerror(g, v, ("Argument " + std::string((yyvsp[-2].str)) + " is not declared.").c_str());
          free((yyvsp[-2].str));
          YYERROR;
     }
     g.attack((yyvsp[-4].str), (yyvsp[-2].str)); free((yyvsp[-4].str)); free((yyvsp[-2].str));
 }
-#line 1312 "src/parser.cpp" /* yacc.c:1646  */
+#line 1315 "src/parser.cpp" /* yacc.c:1646  */
     break;
 
   case 13:
-#line 82 "parser/parser.ypp" /* yacc.c:1646  */
-    {std::cout << "Parsed goal: " << (yyvsp[-1].ope)->to_s() << std::endl; g.set_goals((yyvsp[-1].ope));}
-#line 1318 "src/parser.cpp" /* yacc.c:1646  */
+#line 83 "parser/parser.ypp" /* yacc.c:1646  */
+    {if(v) std::cout << "Goal parsed: " << (yyvsp[-1].ope)->to_s() << std::endl << std::endl; g.set_goals((yyvsp[-1].ope));}
+#line 1321 "src/parser.cpp" /* yacc.c:1646  */
     break;
 
   case 14:
-#line 84 "parser/parser.ypp" /* yacc.c:1646  */
+#line 85 "parser/parser.ypp" /* yacc.c:1646  */
     {
     if(args.find((yyvsp[0].str)) == args.end()) {
-        yyerror(g, ("Argument " + std::string((yyvsp[0].str)) + " is not declared.").c_str());
+        yyerror(g, v, ("Argument " + std::string((yyvsp[0].str)) + " is not declared.").c_str());
         free((yyvsp[0].str));
         YYERROR;
     }
     (yyval.ope) = stardec::logicaloperator::build_arg((yyvsp[0].str)); free((yyvsp[0].str));
 }
-#line 1331 "src/parser.cpp" /* yacc.c:1646  */
+#line 1334 "src/parser.cpp" /* yacc.c:1646  */
     break;
 
   case 15:
-#line 92 "parser/parser.ypp" /* yacc.c:1646  */
+#line 93 "parser/parser.ypp" /* yacc.c:1646  */
     {(yyval.ope) = (yyvsp[-1].ope);}
-#line 1337 "src/parser.cpp" /* yacc.c:1646  */
+#line 1340 "src/parser.cpp" /* yacc.c:1646  */
     break;
 
   case 16:
-#line 93 "parser/parser.ypp" /* yacc.c:1646  */
+#line 94 "parser/parser.ypp" /* yacc.c:1646  */
     {(yyval.ope) = stardec::logicaloperator::build_not((yyvsp[0].ope));}
-#line 1343 "src/parser.cpp" /* yacc.c:1646  */
+#line 1346 "src/parser.cpp" /* yacc.c:1646  */
     break;
 
   case 17:
-#line 94 "parser/parser.ypp" /* yacc.c:1646  */
+#line 95 "parser/parser.ypp" /* yacc.c:1646  */
     {(yyval.ope) = stardec::logicaloperator::build_and((yyvsp[-3].ope), (yyvsp[-1].ope));}
-#line 1349 "src/parser.cpp" /* yacc.c:1646  */
+#line 1352 "src/parser.cpp" /* yacc.c:1646  */
     break;
 
   case 18:
-#line 95 "parser/parser.ypp" /* yacc.c:1646  */
+#line 96 "parser/parser.ypp" /* yacc.c:1646  */
     {(yyval.ope) = stardec::logicaloperator::build_or((yyvsp[-3].ope), (yyvsp[-1].ope));}
-#line 1355 "src/parser.cpp" /* yacc.c:1646  */
+#line 1358 "src/parser.cpp" /* yacc.c:1646  */
     break;
 
   case 19:
-#line 97 "parser/parser.ypp" /* yacc.c:1646  */
+#line 98 "parser/parser.ypp" /* yacc.c:1646  */
     {
   std::vector<unsigned int> indexes;
-  std::transform((yyvsp[-2].arglabels)->begin(), (yyvsp[-2].arglabels)->end(), std::back_inserter(indexes), [g](auto s){return g.id_of(s);});
+  std::transform((yyvsp[-2].arglabels)->begin(), (yyvsp[-2].arglabels)->end(), std::back_inserter(indexes), [&g](auto s){return g.id_of(s);});
   for(auto s : *(yyvsp[-2].arglabels)) free(s);
   delete (yyvsp[-2].arglabels);
-  flocks.push_back(std::make_shared<splittercell::flock>(indexes));
+  flocks.push_back(std::make_unique<splittercell::flock>(indexes));
 }
-#line 1367 "src/parser.cpp" /* yacc.c:1646  */
+#line 1370 "src/parser.cpp" /* yacc.c:1646  */
     break;
 
   case 20:
-#line 104 "parser/parser.ypp" /* yacc.c:1646  */
+#line 105 "parser/parser.ypp" /* yacc.c:1646  */
     {
   std::vector<unsigned int> conditioned, conditioning;
-  std::transform((yyvsp[-4].arglabels)->begin(), (yyvsp[-4].arglabels)->end(), std::back_inserter(conditioned), [g](auto s){return g.id_of(s);});
-  std::transform((yyvsp[-2].arglabels)->begin(), (yyvsp[-2].arglabels)->end(), std::back_inserter(conditioning), [g](auto s){return g.id_of(s);});
+  std::transform((yyvsp[-4].arglabels)->begin(), (yyvsp[-4].arglabels)->end(), std::back_inserter(conditioned), [&g](auto s){return g.id_of(s);});
+  std::transform((yyvsp[-2].arglabels)->begin(), (yyvsp[-2].arglabels)->end(), std::back_inserter(conditioning), [&g](auto s){return g.id_of(s);});
   for(auto s : *(yyvsp[-4].arglabels)) free(s); delete (yyvsp[-4].arglabels);
   for(auto s : *(yyvsp[-2].arglabels)) free(s); delete (yyvsp[-2].arglabels);
-  flocks.push_back(std::make_shared<splittercell::flock>(conditioned, conditioning));
+  flocks.push_back(std::make_unique<splittercell::flock>(conditioned, conditioning));
 }
-#line 1380 "src/parser.cpp" /* yacc.c:1646  */
+#line 1383 "src/parser.cpp" /* yacc.c:1646  */
     break;
 
   case 21:
-#line 113 "parser/parser.ypp" /* yacc.c:1646  */
+#line 114 "parser/parser.ypp" /* yacc.c:1646  */
     {(yyvsp[-2].arglabels)->push_back((yyvsp[0].str)); (yyval.arglabels) = (yyvsp[-2].arglabels);}
-#line 1386 "src/parser.cpp" /* yacc.c:1646  */
+#line 1389 "src/parser.cpp" /* yacc.c:1646  */
     break;
 
   case 22:
-#line 114 "parser/parser.ypp" /* yacc.c:1646  */
+#line 115 "parser/parser.ypp" /* yacc.c:1646  */
     {auto v = new std::vector<char*>(); v->push_back((yyvsp[0].str)); (yyval.arglabels) = v;}
-#line 1392 "src/parser.cpp" /* yacc.c:1646  */
+#line 1395 "src/parser.cpp" /* yacc.c:1646  */
     break;
 
 
-#line 1396 "src/parser.cpp" /* yacc.c:1646  */
+#line 1399 "src/parser.cpp" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1442,7 +1445,7 @@ yyerrlab:
     {
       ++yynerrs;
 #if ! YYERROR_VERBOSE
-      yyerror (g, YY_("syntax error"));
+      yyerror (g, v, YY_("syntax error"));
 #else
 # define YYSYNTAX_ERROR yysyntax_error (&yymsg_alloc, &yymsg, \
                                         yyssp, yytoken)
@@ -1469,7 +1472,7 @@ yyerrlab:
                 yymsgp = yymsg;
               }
           }
-        yyerror (g, yymsgp);
+        yyerror (g, v, yymsgp);
         if (yysyntax_error_status == 2)
           goto yyexhaustedlab;
       }
@@ -1493,7 +1496,7 @@ yyerrlab:
       else
         {
           yydestruct ("Error: discarding",
-                      yytoken, &yylval, g);
+                      yytoken, &yylval, g, v);
           yychar = YYEMPTY;
         }
     }
@@ -1549,7 +1552,7 @@ yyerrlab1:
 
 
       yydestruct ("Error: popping",
-                  yystos[yystate], yyvsp, g);
+                  yystos[yystate], yyvsp, g, v);
       YYPOPSTACK (1);
       yystate = *yyssp;
       YY_STACK_PRINT (yyss, yyssp);
@@ -1586,7 +1589,7 @@ yyabortlab:
 | yyexhaustedlab -- memory exhaustion comes here.  |
 `-------------------------------------------------*/
 yyexhaustedlab:
-  yyerror (g, YY_("memory exhausted"));
+  yyerror (g, v, YY_("memory exhausted"));
   yyresult = 2;
   /* Fall through.  */
 #endif
@@ -1598,7 +1601,7 @@ yyreturn:
          user semantic actions for why this is necessary.  */
       yytoken = YYTRANSLATE (yychar);
       yydestruct ("Cleanup: discarding lookahead",
-                  yytoken, &yylval, g);
+                  yytoken, &yylval, g, v);
     }
   /* Do not reclaim the symbols of the rule whose action triggered
      this YYABORT or YYACCEPT.  */
@@ -1607,7 +1610,7 @@ yyreturn:
   while (yyssp != yyss)
     {
       yydestruct ("Cleanup: popping",
-                  yystos[*yyssp], yyvsp, g);
+                  yystos[*yyssp], yyvsp, g, v);
       YYPOPSTACK (1);
     }
 #ifndef yyoverflow

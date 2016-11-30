@@ -7,16 +7,16 @@
 
 namespace stardec {
     //All goals, not just the positive ones => do not use with logical expression containing NOTs.
-    std::unordered_map<unsigned int, double> present(const graph &g, const std::vector<std::string> &execution) {
-        std::unordered_map<unsigned int, double> values;
+    std::unordered_map<unsigned int, std::vector<double>> present(const graph &g, const std::vector<std::string> &execution) {
+        std::unordered_map<unsigned int, std::vector<double>> values;
         for(auto arg : g.goals())
-            values[arg->id()] = (arg->is_acceptable(g, execution) ? 1.0 : 0.0);
+            values[arg->id()].push_back((arg->is_acceptable(g, execution) ? 1.0 : 0.0));
         return values;
     }
 
-    std::unordered_map<unsigned int, double> logicalvalid(const graph &g, const std::vector<std::string> &execution) {
-        std::unordered_map<unsigned int, double> values;
-        values[0] = g.logicalvalid(execution);
+    std::unordered_map<unsigned int, std::vector<double>> logicalvalid(const graph &g, const std::vector<std::string> &execution) {
+        std::unordered_map<unsigned int, std::vector<double>> values;
+        values[0].push_back(g.logicalvalid(execution));
         return values;
     }
 }

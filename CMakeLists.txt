@@ -13,15 +13,15 @@ ELSE()
     set(FLEX_BISON_FILES src/parser.cpp src/lexer.cpp)
 ENDIF()
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Wall -g -pthread")
-
 add_subdirectory(lib/splittercell)
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Wall -O3 -g -pthread -pedantic -Wall")
 
 include_directories(include)
 include_directories(lib_headers)
 include_directories(lib/splittercell/include)
 
-set(SOURCE_FILES src/graph.cpp src/argument.cpp src/tree.cpp ${FLEX_BISON_FILES})
+set(SOURCE_FILES src/graph.cpp src/argument.cpp src/tree.cpp src/evaluator.cpp ${FLEX_BISON_FILES})
 add_library(stardec ${SOURCE_FILES})
 add_executable(stardecbin main.cpp)
 target_link_libraries(stardecbin splittercell stardec)

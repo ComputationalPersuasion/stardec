@@ -13,7 +13,7 @@
 namespace stardec {
     class graph {
     public:
-        graph() : _distribution({}) {}
+        //graph() {}
         void add_argument(const std::shared_ptr<argument>& argument);
         const std::shared_ptr<argument>& arg(const std::string &label) const {return _arguments.at(label);}
         const unsigned int id_of(const std::string &label) const {return arg(label)->id();}
@@ -21,8 +21,8 @@ namespace stardec {
         std::set<std::string> arguments_labels() const;
         void attack(const std::string &arg1, const std::string &arg2);
         void set_goals(logicaloperator *tree);
-        void set_distribution(const std::vector<std::shared_ptr<splittercell::flock>> &flocks);
-        const splittercell::distribution& distribution() const {return _distribution;}
+        void set_distribution(std::vector<std::unique_ptr<splittercell::flock>> &flocks);
+        const splittercell::distribution& distribution() const {return *_distribution;}
         const std::vector<std::shared_ptr<argument>> &goals() const {return _goals;}
         bool logicalvalid(const std::vector<std::string> &execution) const {return _goalformula(execution);}
 
@@ -32,7 +32,7 @@ namespace stardec {
         std::vector<std::shared_ptr<argument>> _goals;
         std::unordered_map<std::string, std::shared_ptr<argument>> _arguments;
         std::function<bool(std::vector<std::string>)> _goalformula;
-        splittercell::distribution _distribution;
+        std::unique_ptr<splittercell::distribution> _distribution;
     };
 }
 

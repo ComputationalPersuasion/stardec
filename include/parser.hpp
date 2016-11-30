@@ -91,6 +91,6 @@ typedef union YYSTYPE YYSTYPE;
 
 extern YYSTYPE yylval;
 
-int yyparse (stardec::graph &g);
+int yyparse (stardec::graph &g, bool v);
 
 #endif /* !YY_YY_INCLUDE_PARSER_HPP_INCLUDED  */
