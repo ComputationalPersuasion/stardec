@@ -98,8 +98,8 @@ int main(int argc, char *argv[]) {
     auto agg = stardec::mc;
     stardec::tree<std::vector<double>> t(g, filt, update, valuation, agg, horizon, verbose, mtbuild, true);
 
-    std::cout << t.to_dot() << std::endl;
-    return 0;
+    // std::cout << t.to_dot() << std::endl;
+    // return 0;
 
     if(verbose)
         std::cout << "Computing policy" << std::endl;
@@ -112,7 +112,7 @@ int main(int argc, char *argv[]) {
 
     auto prop = stardec::optimal<std::vector<double>>, opp = stardec::optimal<std::vector<double>>;
     auto p = eval.evaluate(t.root(), prop, opp);
-    std::cout << t.to_dot() << std::endl;
+    // std::cout << t.to_dot() << std::endl;
     //for(auto s : p.first)
       //std::cout << s << " ";
     if(verbose) {

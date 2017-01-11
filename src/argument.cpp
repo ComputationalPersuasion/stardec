@@ -31,6 +31,8 @@ namespace stardec {
         if(propagate) {
             for(auto attacked : argument->get_attacked()) {
                 auto attacked_label = attacked.second.lock()->label();
+                if(map.find(attacked_label) == map.cend())
+                    continue;
                 if(attacked_label == entrypoint && map[attacked_label] == IN && map[arg] == IN)
                     map[arg] = UNDEC;
                 change_argument_state(map, g, attacked_label, entrypoint);
