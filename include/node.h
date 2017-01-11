@@ -5,25 +5,27 @@
 #include <vector>
 
 namespace stardec {
+    template <class T>
     class leafnode {
     public:
-        leafnode(std::vector<double> v, std::string l) : values(v), label(l), optimal(nullptr) {}
+        leafnode(T v, std::string l) : value(v), label(l), optimal(nullptr) {}
         virtual bool is_leaf() const {return true;}
-        virtual void add_child(std::shared_ptr<leafnode> node) { throw std::invalid_argument("Can't add a child to a leaf."); }
+        virtual void add_child(std::shared_ptr<leafnode<T>> node) { throw std::invalid_argument("Can't add a child to a leaf."); }
 
-        std::vector<double> values;
+        T value;
         std::string label;
-        std::vector<std::shared_ptr<leafnode>> children;
-        std::shared_ptr<leafnode> optimal;
+        std::vector<std::shared_ptr<leafnode<T>>> children;
+        std::shared_ptr<leafnode<T>> optimal;
         std::vector<double> model;
     };
 
-    class node : public leafnode {
+    template<class T>
+    class node : public leafnode<T> {
     public:
-        node(std::string l) : leafnode({0}, l) {}
+        node(std::string l);
         bool is_leaf() const {return false;}
-        void add_child(std::shared_ptr<leafnode> node) { children.push_back(node); }
-    };
+        void add_child(std::shared_ptr<leafnode<T>> node) { this->children.push_back(node); }
+    };    
 }
 
 #endif //STARDEC_NODE_H

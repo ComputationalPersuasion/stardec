@@ -22,8 +22,10 @@
   }
 
   std::vector<std::unique_ptr<splittercell::flock>> flocks;
+  std::unordered_map<unsigned int, double> initial_belief;
   unsigned int index = 0;
   std::unordered_set<std::string> args;
+  std::unordered_set<unsigned int> frozen;
 
   void yyerror (stardec::graph &g, bool v, char const *s) {
      fprintf (stderr, "%s\n", s);
@@ -31,13 +33,15 @@
    }
 %}
 
-%token ARG ATT GOAL FLOCK LEFTPAR RIGHTPAR DOT COMMA AND OR NOT COND
+%token ARG ATT GOAL FLOCK LEFTPAR RIGHTPAR DOT COMMA AND OR NOT COND FROZEN INITIAL WORDS
 %union {
     char *str;
+    double dbl;
     stardec::logicaloperator *ope;
     std::vector<char *> *arglabels;
 }
 %token <str> LABEL
+%token <dbl> DBL
 %type <ope> logical
 %type <arglabels> labellist
 
@@ -45,7 +49,8 @@
 %%
 
 arggraph : lines {
-    g.set_distribution(flocks);
+    g.set_distribution(flocks, initial_belief);
+    g.set_frozen_arguments(frozen);
 }
 
 lines : arg
@@ -56,6 +61,12 @@ lines : arg
         | goallist lines
         | flock lines
         | flock
+        | frozen lines
+        | frozen
+        | initial lines
+        | initial
+        | words
+        | words lines
 
 arg: ARG LEFTPAR LABEL RIGHTPAR DOT {
     auto arg = std::make_shared<stardec::argument>($3, index++);
@@ -64,6 +75,14 @@ arg: ARG LEFTPAR LABEL RIGHTPAR DOT {
         std::cout << "Argument parsed: " << arg->label() << std::endl;
     args.insert($3);
     free($3);
+}
+
+words: WORDS LEFTPAR LABEL COMMA labellist RIGHTPAR DOT {
+  auto arg = g.arg($3);
+  std::for_each($5->cbegin(), $5->cend(), [&arg](auto s){arg->add_word(s);});
+  free($3);
+  for(auto s : *$5) free(s);
+  delete $5;
 }
 
 att: ATT LEFTPAR LABEL COMMA LABEL RIGHTPAR DOT {
@@ -109,6 +128,17 @@ flock: FLOCK LEFTPAR labellist RIGHTPAR DOT {
   for(auto s : *$3) free(s); delete $3;
   for(auto s : *$5) free(s); delete $5;
   flocks.push_back(std::make_unique<splittercell::flock>(conditioned, conditioning));
+}
+
+frozen: FROZEN LEFTPAR labellist RIGHTPAR DOT {
+  std::transform($3->begin(), $3->end(), std::inserter(frozen, frozen.end()), [&g](auto s){return g.id_of(s);});
+  for(auto s : *$3) free(s);
+  delete $3;
+}
+
+initial: INITIAL LEFTPAR LABEL COMMA DBL RIGHTPAR DOT {
+  initial_belief[g.id_of($3)] = $5;
+  free($3);
 }
 
 labellist: labellist COMMA LABEL {$1->push_back($3); $$ = $1;}

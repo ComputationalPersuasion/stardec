@@ -13,22 +13,25 @@
 namespace stardec {
     typedef std::function<void(std::set<std::string>&, const std::vector<std::string>&)> filterfunction;
     typedef std::function<void(splittercell::distribution&, const argument&)> updatefunction;
-    typedef std::function<std::unordered_map<unsigned int, std::vector<double>>(const graph&, const std::vector<std::string>&)> valuationfunction;
-    typedef std::function<std::vector<double>(const std::unordered_map<unsigned int, std::vector<double>> &, const std::unordered_map<unsigned int, double> &)> aggregationfunction;
-    typedef std::function<void(std::shared_ptr<leafnode> node)> decisionfunction;
+    template<class T>
+    using valuationfunction = typename std::function<std::unordered_map<unsigned int, T>(const graph&, const std::vector<std::string>&)>;
+    template<class T>
+    using aggregationfunction = typename std::function<T(const std::unordered_map<unsigned int, T>&, const std::unordered_map<unsigned int, double>&)>;
+    template<class T> using decisionfunction = typename std::function<void(std::shared_ptr<leafnode<T>>)>;
 
+    template<class T>
     class tree {
     public:
         tree(const graph &g, const std::vector<filterfunction> &filter_functions,
-            const updatefunction &update_function, const valuationfunction &valuation_function,
-            const aggregationfunction &aggregation_function, unsigned int horizon, bool verbose, bool mtbuild = true, bool mtdist = true);
+            const updatefunction &update_function, const valuationfunction<T> &valuation_function,
+            const aggregationfunction<T> &aggregation_function, unsigned int horizon, bool verbose, bool mtbuild = true, bool mtdist = true);
         std::string to_dot() const;
-        leafnode* root() {return _root.get();}
+        leafnode<T>* root() {return _root.get();}
 
-        void optimize(const decisionfunction &decision_function);
+        void optimize(const decisionfunction<T> &decision_function);
 
     private:
-        std::shared_ptr<node> _root;
+        std::shared_ptr<node<T>> _root;
     };
 }
 

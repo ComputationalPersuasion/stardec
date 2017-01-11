@@ -2,11 +2,8 @@
 #define STARDEC_AGGREGATION_FUNCTIONS_H
 
 namespace stardec {
-    std::vector<double> average(const std::unordered_map<unsigned int, std::vector<double>> &values, const std::unordered_map<unsigned int, double> &beliefs) {
-        double sum = 0.0;
-        for(auto v : values)
-            sum += (std::accumulate(v.second.cbegin(), v.second.cend(), 0.0) + beliefs.at(v.first)) / (v.second.size() + 1);
-        return std::vector<double>({sum / values.size()});
+    double average(const std::unordered_map<unsigned int, double> &values, const std::unordered_map<unsigned int, double> &beliefs) {
+        return std::accumulate(values.cbegin(), values.cend(), 0.0, [&beliefs](auto acc, auto v) {return acc + (v.second + beliefs.at(v.first)) / 2;}) / values.size();
     }
 
     std::vector<double> mc(const std::unordered_map<unsigned int, std::vector<double>> &values, const std::unordered_map<unsigned int, double> &beliefs) {

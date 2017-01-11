@@ -15,10 +15,12 @@ namespace stardec {
 
         unsigned int get_component() const {return _component;}
         void set_component(unsigned int component) {_component = component;}
+        void add_word(const std::string &w) {_words.push_back(w);}
+        const std::vector<std::string> &words() const {return _words;}
         unsigned int id() const {return _id;}
         const std::string &label() const {return _label;}
-        const std::map<unsigned int, std::shared_ptr<argument>> get_attackers() const {return _is_atked_by;}
-        const std::map<unsigned int, std::shared_ptr<argument>> get_attacked() const {return _attacks;}
+        const std::map<unsigned int, std::weak_ptr<argument>> get_attackers() const {return _is_atked_by;}
+        const std::map<unsigned int, std::weak_ptr<argument>> get_attacked() const {return _attacks;}
 
         void reset_belief();
 
@@ -33,7 +35,8 @@ namespace stardec {
         std::string _label;
         unsigned int _id, _component;
         double _belief, _initial_belief;
-        std::map<unsigned int, std::shared_ptr<argument>> _attacks, _is_atked_by;
+        std::map<unsigned int, std::weak_ptr<argument>> _attacks, _is_atked_by;
+        std::vector<std::string> _words;
     };
 
     enum state {OUT, IN, UNDEC};

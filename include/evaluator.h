@@ -9,16 +9,18 @@
 #include "node.h"
 
 namespace stardec {
-    typedef std::function<leafnode*(const leafnode* const)> evaluationfunction;
+    template <class T>
+    using evaluationfunction = typename std::function<leafnode<T>*(const leafnode<T>* const)>;
 
+    template <class T>
     class evaluator {
     public:
         evaluator();
-        std::pair<std::vector<std::string>, std::vector<double>> evaluate(const leafnode* const root, const evaluationfunction &prop, const evaluationfunction &opp) const;
-        double evaluate_mt(const leafnode* const root, const evaluationfunction &prop, const evaluationfunction &opp, unsigned int runs) const;
+        std::pair<std::vector<std::string>, T> evaluate(const leafnode<T>* const root, const evaluationfunction<T> &prop, const evaluationfunction<T> &opp) const;
+        double evaluate_mt(const leafnode<T>* const root, const evaluationfunction<T> &prop, const evaluationfunction<T> &opp, unsigned int runs) const;
 
     private:
-        std::uniform_int_distribution<> _u_i_d;
+        std::uniform_int_distribution<> _u_int_d;
         std::random_device _rd;
     };
 }

@@ -9,24 +9,28 @@ namespace stardec {
         auto argument = g.arg(arg);
         auto attackers = argument->get_attackers();
         bool propagate = false;
-        if( std::any_of(attackers.cbegin(), attackers.cend(), [&map](auto &arg){return map[arg.second->label()] == IN;}) ) {
+        auto is_in = [&map](auto &arg){auto lbl = arg.second.lock()->label(); return (map.find(lbl) != map.cend()) && (map[lbl] == IN);};
+        auto is_undec = [&map](auto &arg){auto lbl = arg.second.lock()->label(); return (map.find(lbl) != map.cend()) && (map[lbl] == UNDEC);};
+        if( std::any_of(attackers.cbegin(), attackers.cend(), is_in) ) {
             if(map[arg] != OUT) {
                 map[arg] = OUT;
                 propagate = true;
             }
-        } else if( std::any_of(attackers.cbegin(), attackers.cend(), [&map](auto &arg){return map[arg.second->label()] == UNDEC;}) ) {
+        } else if( std::any_of(attackers.cbegin(), attackers.cend(), is_undec) ) {
             if(map[arg] != UNDEC) {
                 map[arg] = UNDEC;
                 propagate = true;
             }
-        } else if(map[arg] != IN) {
-            map[arg] = IN;
-            propagate = true;
+        } else /*if((map.find(arg) != map.cend()) && (map[arg] != IN)) */{
+            if(map[arg] != IN) {
+                map[arg] = IN;
+                propagate = true;
+            }
         }
 
         if(propagate) {
             for(auto attacked : argument->get_attacked()) {
-                auto attacked_label = attacked.second->label();
+                auto attacked_label = attacked.second.lock()->label();
                 if(attacked_label == entrypoint && map[attacked_label] == IN && map[arg] == IN)
                     map[arg] = UNDEC;
                 change_argument_state(map, g, attacked_label, entrypoint);
@@ -45,17 +49,21 @@ namespace stardec {
     }
 
     void argument::propagate_component() {
-        for (auto a : _attacks)
-            if (a.second->get_component() != this->_component) {
-                a.second->set_component(this->_component);
-                a.second->propagate_component();
+        for (auto a : _attacks) {
+            auto ptr = a.second.lock();
+            if (ptr->get_component() != this->_component) {
+                ptr->set_component(this->_component);
+                ptr->propagate_component();
             }
+        }
 
-        for (auto a : _is_atked_by)
-            if (a.second->get_component() != this->_component) {
-                a.second->set_component(this->_component);
-                a.second->propagate_component();
+        for (auto a : _is_atked_by) {
+            auto ptr = a.second.lock();
+            if (ptr->get_component() != this->_component) {
+                ptr->set_component(this->_component);
+                ptr->propagate_component();
             }
+        }
     }
 
     void argument::add_attack_to(const std::shared_ptr<argument> &atked) {

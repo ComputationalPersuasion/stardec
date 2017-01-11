@@ -3,11 +3,14 @@
 #include "graph.h"
 
 namespace stardec {
-    void graph::set_distribution(std::vector<std::unique_ptr<splittercell::flock>> &flocks) {
+    void graph::set_distribution(std::vector<std::unique_ptr<splittercell::flock>> &flocks, const std::unordered_map<unsigned int, double> &initial) {
       if(flocks.empty()) {
           std::vector<unsigned int> ids(_arguments.size());
           std::transform(_arguments.cbegin(), _arguments.cend(), ids.begin(), [](auto a){return a.second->id();});
-          _distribution = std::make_unique<splittercell::distribution>(ids);
+          if(initial.empty())
+              _distribution = std::make_unique<splittercell::distribution>(ids);
+          else
+              _distribution = std::make_unique<splittercell::distribution>(ids, initial);
       }
       else
           _distribution = std::make_unique<splittercell::distribution>(flocks);

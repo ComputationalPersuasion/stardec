@@ -42,6 +42,11 @@ namespace stardec {
         }
     }
 
+    void fast_ambivalent_with_filter(splittercell::distribution &dist, const argument &arg, const std::unordered_set<unsigned int> &filter) {
+        if(filter.find(arg.id()) == filter.cend())
+            fast_ambivalent(dist, arg);
+    }
+
     void strict(splittercell::distribution &dist, const argument &arg) {
         if(attackers_below_half(dist, arg)) {
             dist.refine(arg.id(), true, 1.0);

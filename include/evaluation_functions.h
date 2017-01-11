@@ -9,13 +9,15 @@
 #include "distance.h"
 
 namespace stardec {
-    leafnode* uniform(const leafnode * const node) {
+    template <class T>
+    leafnode<T>* uniform(const leafnode<T>* const node) {
         unsigned int num_of_children = node->children.size();
         unsigned int index = rand() % num_of_children;
         return node->children[index].get();
     }
 
-    leafnode* optimal(const leafnode * const node) {
+    template <class T>
+    leafnode<T>* optimal(const leafnode<T>* const node) {
         return node->optimal.get();
     }
 
@@ -29,7 +31,8 @@ namespace stardec {
       std::transform(profile.cbegin(), profile.cend(), profile.begin(), [sum](double p){return p / sum;});
     }
 
-    leafnode* discrete(const leafnode * const node, double lowbound, double step, std::uniform_int_distribution<> &u_i_d, std::random_device &rd) {
+    template <class T>
+    leafnode<T>* discrete(const leafnode<T> * const node, double lowbound, double step, std::uniform_int_distribution<> &u_i_d, std::random_device &rd) {
         std::vector<double> profile(node->model.size());
         double distance;
         do {

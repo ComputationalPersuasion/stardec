@@ -3,13 +3,15 @@
 #include "evaluator.h"
 
 namespace stardec {
-    evaluator::evaluator() : _u_i_d(0,99) {}
+    template <class T>
+    evaluator<T>::evaluator() : _u_int_d(0,99) {}
 
-    std::pair<std::vector<std::string>, std::vector<double>> evaluator::evaluate(const leafnode * const root, const evaluationfunction &prop, const evaluationfunction &opp) const {
+    template <class T>
+    std::pair<std::vector<std::string>, T> evaluator<T>::evaluate(const leafnode<T> * const root, const evaluationfunction<T> &prop, const evaluationfunction<T> &opp) const {
         if(root->children.empty())
             throw std::invalid_argument("Empty decision tree.");
         std::vector<std::string> trace;
-        const leafnode * current = root;
+        const leafnode<T>* current = root;
         while(!current->is_leaf()) {
             current = prop(current);
             trace.push_back(current->label);
@@ -19,18 +21,30 @@ namespace stardec {
             } else
                 break;
         }
-        return std::make_pair<>(trace, current->values);
+        return std::make_pair<>(trace, current->value);
     }
 
-    double evaluator::evaluate_mt(const leafnode* const root, const evaluationfunction &prop, const evaluationfunction &opp, unsigned int runs) const {
+    template <class T> double manage_val(const T &val);
+    template<> double manage_val(const double &val) {
+        return val;
+    }
+    template<> double manage_val(const std::vector<double> &val) {
+        return std::accumulate(val.cbegin(), val.cend(), 0.0) / val.size();
+    }
+
+    template <class T>
+    double evaluator<T>::evaluate_mt(const leafnode<T>* const root, const evaluationfunction<T> &prop, const evaluationfunction<T> &opp, unsigned int runs) const {
         if(root->children.empty())
             throw std::invalid_argument("Empty decision tree.");
         double sum = 0;
-        std::vector<std::future<std::pair<std::vector<std::string>, std::vector<double>>>> futures;
+        std::vector<std::future<std::pair<std::vector<std::string>, T>>> futures;
         for(unsigned int i = 0; i < runs; i++)
             futures.push_back(std::async(std::launch::async, &evaluator::evaluate, this, std::cref(root), std::cref(prop), std::cref(opp)));
         for(auto &f : futures)
-            sum += f.get().second[0] / runs;
+            sum += manage_val(f.get().second) / runs;
         return sum;
     }
+
+    template class evaluator<double>;
+    template class evaluator<std::vector<double>>;
 }

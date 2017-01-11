@@ -65,7 +65,11 @@ extern int yydebug;
     OR = 267,
     NOT = 268,
     COND = 269,
-    LABEL = 270
+    FROZEN = 270,
+    INITIAL = 271,
+    WORDS = 272,
+    LABEL = 273,
+    DBL = 274
   };
 #endif
 
@@ -74,13 +78,14 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 35 "parser/parser.ypp" /* yacc.c:1909  */
+#line 37 "parser/parser.ypp" /* yacc.c:1909  */
 
     char *str;
+    double dbl;
     stardec::logicaloperator *ope;
     std::vector<char *> *arglabels;
 
-#line 84 "include/parser.hpp" /* yacc.c:1909  */
+#line 89 "include/parser.hpp" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;

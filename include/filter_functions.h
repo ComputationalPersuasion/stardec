@@ -16,7 +16,7 @@ namespace stardec {
         auto goals = g.goals();
         for(auto g : goals)
             for(auto a : g->get_attackers())
-                considering.erase(a.second->label());
+                considering.erase(a.second.lock()->label());
     }
 
     //Cannot use set_difference because it requires the containers to be sorted (and we cannot sort the execution)
@@ -32,8 +32,8 @@ namespace stardec {
         for(auto arg : current_exec) {
             auto a = g.arg(arg);
             for(auto atker : a->get_attackers())
-                if(considering.find(atker.second->label()) != considering.end())
-                    relevant_args.insert(atker.second->label());
+                if(considering.find(atker.second.lock()->label()) != considering.end())
+                    relevant_args.insert(atker.second.lock()->label());
         }
         considering = relevant_args;
     }
