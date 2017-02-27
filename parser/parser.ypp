@@ -1,0 +1,109 @@
+%parse-param {stardec::graph &g} {bool v}
+
+%code requires {
+  #include "graph.h"
+  #include <vector>
+}
+%{
+  #include <string>
+  #include <memory>
+  #include <iostream>
+  #include <unordered_set>
+  #include <algorithm>
+  #include <stdexcept>
+  #include "graph.h"
+  #include "argument.h"
+
+  extern "C"
+  {
+      int yyparse(stardec::graph&, bool);
+      int yylex(void);
+  }
+
+  unsigned int index = 0;
+  std::unordered_set<std::string> args;
+
+  void yyerror (stardec::graph &g, bool v, char const *s) {
+     fprintf (stderr, "%s\n", s);
+     exit(-1);
+   }
+%}
+
+%token ARG ATT GOAL LEFTPAR RIGHTPAR DOT COMMA AND OR NOT COND FROZEN INITIAL WORDS
+%union {
+    char *str;
+    double dbl;
+    std::vector<char *> *arglabels;
+}
+%token <str> LABEL
+%token <dbl> DBL
+%type <arglabels> labellist
+
+%start arggraph
+%%
+parser: arggraph {
+    if(g.goals().empty())
+        throw std::invalid_argument("No goal defined in the persuasion problem.");
+}
+
+arggraph : arg
+        | arg lines
+        | att
+        | att lines
+        | goallist
+        | goallist lines
+        | initial lines
+        | initial
+        | words
+        | words lines
+
+arg: ARG LEFTPAR LABEL RIGHTPAR DOT {
+    auto arg = std::make_shared<stardec::argument>($3, index++);
+    g.add_argument(arg);
+    if(v)
+        std::cout << "Argument parsed: " << arg->label() << std::endl;
+    args.insert($3);
+    free($3);
+}
+
+words: WORDS LEFTPAR LABEL COMMA labellist RIGHTPAR DOT {
+  auto arg = g.arg($3);
+  std::for_each($5->cbegin(), $5->cend(), [&arg](auto s){arg->add_word(s);});
+  free($3);
+  for(auto s : *$5) free(s);
+  delete $5;
+}
+
+att: ATT LEFTPAR LABEL COMMA LABEL RIGHTPAR DOT {
+    if(args.find($3) == args.end()) {
+         yyerror(g, v, ("Argument " + std::string($3) + " is not declared.").c_str());
+         free($3);
+         YYERROR;
+    }
+    if(args.find($5) == args.end()) {
+         yyerror(g, v, ("Argument " + std::string($5) + " is not declared.").c_str());
+         free($5);
+         YYERROR;
+    }
+    g.attack($3, $5); free($3); free($5);
+}
+
+goallist: GOAL LEFTPAR LABEL RIGHTPAR DOT {
+    if(args.find($3) == args.end()) {
+        yyerror(g, v, ("Argument " + std::string($3) + " is not declared.").c_str());
+        free($3);
+        YYERROR;
+    }
+    if(v)
+        std::cout << "Goal parsed: " << $2->to_s() << std::endl << std::endl;
+    g.set_goal($3);
+    free($3);
+}
+
+initial: INITIAL LEFTPAR LABEL COMMA DBL RIGHTPAR DOT {
+  g.arg($3)->set_belief($5);
+  free($3);
+}
+
+labellist: labellist COMMA LABEL {$1->push_back($3); $$ = $1;}
+          | LABEL {auto v = new std::vector<char*>(); v->push_back($1); $$ = v;}
