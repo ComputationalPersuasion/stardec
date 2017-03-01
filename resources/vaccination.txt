@@ -1,0 +1,223 @@
+arg(annualvaccine).
+words(annualvaccine, staff, annual, flu, vaccine, beneficial).
+
+arg(costeffective).
+words(costeffective, cost, effective, vaccine, staff).
+
+arg(beneficial).
+words(beneficial, beneficial, try, prevent, flu, employee).
+
+arg(toobusytoget).
+words(toobusytoget, staff, busy, flu, vaccine).
+
+arg(notimetoget).
+words(notimetoget, employee, time, flu, shot).
+att(costeffective, toobusytoget).
+att(costeffective, notimetoget).
+att(beneficial, toobusytoget).
+att(beneficial, notimetoget).
+att(toobusytoget, annualvaccine).
+att(notimetoget, annualvaccine).
+
+arg(toobusynottoget).
+words(toobusynottoget, staff, busy, flu, vaccine).
+att(toobusytoget, toobusynottoget).
+att(notimetoget, toobusynottoget).
+att(toobusynottoget, toobusytoget).
+att(toobusynottoget, notimetoget).
+
+arg(noproblemwithflu).
+words(noproblemwithflu, vast, majority, people, serious, problem, flu).
+
+arg(seriousflu).
+words(seriousflu, flu, serious, disease, hospital, death).
+att(noproblemwithflu, seriousflu).
+att(seriousflu, noproblemwithflu).
+att(noproblemwithflu, annualvaccine).
+
+arg(notseriousillness).
+words(notseriousillness, flu, serious, illness).
+
+arg(notseveresickness).
+words(notseveresickness, flu, serious, sickness).
+att(seriousflu, notseriousillness).
+att(seriousflu, notseveresickness).
+att(notseriousillness, annualvaccine).
+att(notseveresickness, annualvaccine).
+
+arg(nopathogenskill).
+words(nopathogenskill, vaccine, kill, increase, resistance).
+
+arg(noviruskill).
+words(noviruskill, vaccine, kill, bacteria, increase, resistant).
+
+arg(vaccineresistant).
+words(vaccineresistant, needless, vaccine, increase, vaccine, resistance).
+att(nopathogenskill, vaccineresistant).
+att(noviruskill, vaccineresistant).
+att(vaccineresistant, annualvaccine).
+
+arg(nomercury).
+words(nomercury, vaccine, mercury, virus, saline, suspension).
+
+arg(mercury).
+words(mercury, flu, vaccine, mercury).
+
+arg(heavymetal).
+words(heavymetal, flu, shot, heavy, metal).
+att(nomercury, mercury).
+att(nomercury, heavymetal).
+att(mercury, annualvaccine).
+att(heavymetal, annualvaccine).
+
+arg(flumutates).
+words(flumutates, flu, virus, mutate, vaccine, ensure, immunity, likely, cause, outbreak).
+
+arg(noteveryyear).
+words(noteveryyear, flu, vaccine, necessary, year).
+
+arg(unnecessary).
+words(unnecessary, unnecessary, flu, jab, year).
+att(flumutates, noteveryyear).
+att(flumutates, unnecessary).
+att(noteveryyear, annualvaccine).
+att(unnecessary, annualvaccine).
+
+arg(chosenincorrectly).
+words(chosenincorrectly, vaccine, choose, incorrect, ineffective).
+
+arg(protection).
+words(protection, protection, normal, work, protection).
+
+arg(insurance).
+words(insurance, insurance, insurance).
+
+arg(chosencorrectly).
+words(chosencorrectly, flu, vaccine, choose, correct, work, effective).
+
+arg(guessed).
+words(guessed, flu, vaccine, work, virus, guess).
+att(chosenincorrectly, flumutates).
+att(chosenincorrectly, chosencorrectly).
+att(chosencorrectly, chosenincorrectly).
+att(protection, chosenincorrectly).
+att(insurance, chosenincorrectly).
+att(chosencorrectly, guessed).
+att(guessed, annualvaccine).
+
+arg(dontworry).
+words(dontworry, staff, worry, keep, healthy).
+att(dontworry, annualvaccine).
+
+arg(exposed).
+words(exposed, staff, viral, infection, patient).
+
+arg(care).
+words(care, employee, care, sick, people, virus).
+att(exposed, dontworry).
+att(care, dontworry).
+
+arg(bestforpatients).
+words(bestforpatients, staff, patient).
+att(bestforpatients, dontworry).
+
+arg(strongsense).
+words(strongsense, strong, sense, community).
+att(strongsense, dontworry).
+
+arg(notconcerned).
+words(notconcerned, staff, concerned, infection, patient).
+
+arg(nocare).
+words(nocare, employee, care, infection, care).
+att(strongsense, notconcerned).
+att(strongsense, nocare).
+att(bestforpatients, notconcerned).
+att(bestforpatients, nocare).
+att(notconcerned, annualvaccine).
+att(nocare, annualvaccine).
+
+arg(caninfect).
+words(caninfect, staff, infect, patient).
+
+arg(cantransmit).
+words(cantransmit, employee, transmit, disease, care).
+att(caninfect, notconcerned).
+att(cantransmit, notconcerned).
+att(caninfect, nocare).
+att(cantransmit, nocare).
+
+arg(noface2face).
+words(noface2face, majority, staff, face, contact, patient).
+
+arg(nodirect).
+words(nodirect, employee, deal, patient).
+att(noface2face, caninfect).
+att(noface2face, cantransmit).
+att(nodirect, caninfect).
+att(nodirect, cantransmit).
+
+arg(share).
+words(share, majority, staff, building, breath, air, share, facility, touch, service).
+att(share, noface2face).
+att(share, nodirect).
+
+arg(dispensers).
+words(dispensers, disinfectant, dispenser, inhibition, spread, infection).
+
+arg(disinfectants).
+words(disinfectants, disinfectant, available, stop, transmission, disease).
+att(dispensers, share).
+att(disinfectants, share).
+
+arg(nouse).
+words(nouse, people, use, dispenser).
+att(nouse, dispensers).
+att(nouse, disinfectants).
+
+arg(use).
+words(use, staff, use, dispenser, regular).
+att(use, nouse).
+
+arg(complications).
+words(complications, patient, group, high, risk, serious, complication, get, flu).
+
+arg(danger).
+words(danger, admission, hospital, danger, serious, health, problem, contract, flu).
+att(complications, notconcerned).
+att(danger, notconcerned).
+att(complications, nocare).
+att(danger, nocare).
+att(complications, notseriousillness).
+att(danger, notseriousillness).
+
+arg(pregnant).
+words(pregnant, pregnant, woman, flu, vaccine, dangerous).
+att(pregnant, annualvaccine).
+
+arg(pregnantsafe).
+words(pregnantsafe, pregnant, woman, safe, inactive, flu, vaccine).
+att(pregnantsafe, pregnant).
+
+arg(weakening).
+words(weakening, flu, vaccine, cause, weak, immune, system, increase, illness, vaccination).
+att(weakening, annualvaccine).
+
+arg(noweakening).
+words(noweakening, flu, vaccine, weaken, immune, system, illness, vaccination, indicate, system, weak).
+att(noweakening, weakening).
+
+arg(anaphylactic).
+words(anaphylactic, flu, vaccine, cause, anaphylactic, reaction).
+
+arg(reaction).
+words(reaction, flu, jab, result, serious, allergic, reaction).
+att(anaphylactic, annualvaccine).
+att(reaction, annualvaccine).
+
+arg(lowreaction).
+words(lowreaction, anaphylactic, reaction, low, people, suffer, severe, negative, effect, flu).
+att(lowreaction, anaphylactic).
+att(lowreaction, reaction).
+
+goal(annualvaccine).

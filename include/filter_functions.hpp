@@ -27,7 +27,7 @@ namespace stardec {
     }*/
 
     //Cannot use set_difference because it requires the containers to be sorted (and we cannot sort the execution)
-    void remove_duplicate(std::set<argument*> &candidates, const std::vector<argument*> &current_exec) {
+    void remove_duplicate(std::set<argument*> &candidates, const std::vector<argument*> &sequence) {
         for(auto a : sequence)
             candidates.erase(a);
     }

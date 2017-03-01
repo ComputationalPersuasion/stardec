@@ -2,9 +2,10 @@
 %option nounput
 
 %{
-#include "parser.hpp"
-#define YY_DECL extern "C" int yylex()
+#include "parser/parser.hpp"
+#define YY_DECL int yylex()
 %}
+
 
 LABEL [a-zA-Z0-9_]+
 DOUBLE [0-9]+(.[0-9]+)?
@@ -22,7 +23,6 @@ DOUBLE [0-9]+(.[0-9]+)?
 "NOT"     {return NOT;}
 
 {LABEL} {yylval.str = strdup(yytext); return LABEL;}
-{DOUBLE} {yylval.dbl = std::stod(yytext); return DBL;}
 
 [ \t\n] {}
 "("     {return LEFTPAR;}
@@ -32,3 +32,9 @@ DOUBLE [0-9]+(.[0-9]+)?
 "|"     {return COND;}
 
 %%
+
+void parse(const std::string &line, stardec::parsed_item &item, bool verbose) {
+    YY_BUFFER_STATE buffer = yy_scan_string(line.c_str());
+    yyparse(item, verbose);
+    yy_delete_buffer(buffer);
+}

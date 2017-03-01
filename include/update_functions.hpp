@@ -3,18 +3,21 @@
 
 #include <algorithm>
 #include <unordered_map>
+#include <typeinfo>
+#include <typeindex>
+#include "argument.hpp"
 #include "graph.hpp"
 #include "values.hpp"
 #include "function_alias.hpp"
 
 namespace stardec {
-    typedef <typename T>
+    template <typename T, typename... Values>
     class update_function {
     public:
         update_function(bool isfinal) : _final(isfinal) {}
         bool is_final() const {return _final;}
 
-        virtual T update(argument *arg) const = 0;
+        virtual T update(argument<Values...> *arg) const;
 
     private:
         bool _final;
@@ -22,45 +25,51 @@ namespace stardec {
 
 
     /***************** belief_update ********************/
-    class belief_update : public update_function<belief> {
+    template <typename... Values>
+    class belief_update : public update_function<belief, Values...> {
     public:
-        belief_update(belief_function bel, bool isfinal) : update_function(isfinal), _fct(bel) {}
+        belief_update(belief_function<Values...> bel, bool isfinal = false) : update_function<belief, Values...>(isfinal), _fct(bel) {}
 
-        virtual belief update(const argument &arg) const override {
+        belief update(argument<Values...> *arg) const override {
             return _fct(arg);
         }
 
     private:
-        belief_function _fct;
+        belief_function<Values...> _fct;
     };
 
-    inline void fast_refine(argument *arg, bool side, double factor) {
-        double old_belief = arg->value(stardec::belief).value();
+    template <typename... Values>
+    void fast_refine(argument<Values...> *arg, bool side, double factor) {
+        double old_belief = arg->template get<belief>().value();
         if(side)
-            arg->value(stardec::belief) = old_belief + factor * (1 - old_belief);
+            arg->template get<belief>().value() = old_belief + factor * (1 - old_belief);
         else
-            arg->value(stardec::belief) = old_belief * (1 - factor);
+            arg->template get<belief>().value() = old_belief * (1 - factor);
     }
 
-    bool attackers_below_half_belief(const argument &arg) {
-        auto atkers = arg.get_attackers();
-        return std::all_of(atkers.cbegin(), atkers.cend(), [](auto atk){atk.second.value(stardec::belief).value() <= 0.5;});
+    template <typename... Values>
+    bool attackers_below_half_belief(const argument<Values...> * const arg) {
+        auto atkers = arg->get_attackers();
+        return std::all_of(atkers.cbegin(), atkers.cend(), [](auto atk){return atk.second->template get<belief>().value() <= 0.5;});
     }
 
-    belief fast_general_update(const argument &arg, double factor) {
+    template <typename... Values>
+    belief fast_general_update(argument<Values...> *arg, double factor) {
         if(attackers_below_half_belief(arg)) {
-            fast_refine(*arg, true, factor);
-            for(auto rel : arg.get_attacked())
+            fast_refine(arg, true, factor);
+            for(auto rel : arg->get_attacked())
                 fast_refine(rel.second, false, factor);
         }
-        return arg.value(stardec::belief);
+        return arg->template get<belief>();
     }
 
-    belief fast_ambivalent(const argument &arg) {
+    template <typename... Values>
+    belief fast_ambivalent(argument<Values...> *arg) {
         return fast_general_update(arg, 0.75);
     }
 
-    belief fast_strict(const argument &arg) {
+    template <typename... Values>
+    belief fast_strict(argument<Values...> *arg) {
         return fast_general_update(arg, 1.0);
     }
     /***************** belief_update ********************/

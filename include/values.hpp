@@ -18,11 +18,12 @@ namespace stardec {
     template <typename T>
     class base_value {
     public:
-        virtual base_value(T val) : _value(val) {}
-        virtual base_value(const base_value<T> &other) : _value(other._value) {}
-        virtual ~base_value() {}
+        base_value(T val) : _value(val) {}
+        base_value(const base_value<T> &other) : _value(other._value) {}
+        ~base_value() {}
 
-        virtual T value() const {return _value;}
+        virtual T &value() {return _value;}
+        virtual T const &value() const {return _value;}
         virtual int comp(const T &other) const = 0;
         virtual int comp(const base_value<T> &other) const {return comp(other._value);};
 
@@ -50,6 +51,7 @@ namespace stardec {
     /*************** affective_norm *******************/
     class affective_norm : public base_value<std::array<double, 3>> {
     public:
+        affective_norm() : base_value<std::array<double,3>>({0.0,0.0,0.0}) {}
         affective_norm(const std::array<double, 3> &norms) : base_value<std::array<double,3>>(norms) {}
 
         virtual int comp(const std::array<double, 3> &other) const override {
@@ -73,6 +75,7 @@ namespace stardec {
     /******************* imprecise_belief ******************/
     class imprecise_belief : public base_value<std::array<double, 2>> {
     public:
+        imprecise_belief() : base_value<std::array<double,2>>({0,1}) {}
         imprecise_belief(const std::array<double,2> &bounds) :
         base_value<std::array<double,2>>(bounds) {}
 
@@ -82,7 +85,7 @@ namespace stardec {
             else if(ret > 1) ret = 1;
             return ret;
         }
-    }
+    };
 }
 
 #endif //STARDEC_VALUES_H

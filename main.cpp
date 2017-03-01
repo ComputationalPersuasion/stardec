@@ -1,24 +1,20 @@
 #include <iostream>
 #include <unordered_map>
 #include <fstream>
-#include "function_alias.hpp"
+//#include "function_alias.hpp"
 #include "graph.hpp"
-#include "tree.hpp"
+//#include "tree.hpp"
 // #include "evaluator.hpp"
-#include "filter_functions.hpp"
+//#include "filter_functions.hpp"
 // #include "distance.hpp"
 // #include "decision_functions.hpp"
-#include "valuation_functions.hpp"
+//#include "valuation_functions.hpp"
 #include "update_functions.hpp"
-#include "aggregation_functions.hpp"
+//#include "aggregation_functions.hpp"
 // #include "evaluation_functions.hpp"
-#include "function_struct.hpp"
+//#include "function_struct.hpp"
 #include "cxxopts.hpp"
-extern "C" {
-    #include "parser.hpp"
-}
-
-extern FILE *yyin;
+#include "values.hpp"
 
 void load_circumplex_values(std::unordered_map<std::string, std::unordered_map<std::string, std::array<double, 3>>> &values) {
     unsigned int nbline;
@@ -43,7 +39,7 @@ int main(int argc, char *argv[]) {
     bool mtbuild = false, verbose = false;
     unsigned int horizon = 5;
     std::string inputfilename, category, update;
-    auto f_struct = std::make_shared<stardec::function_struct<stardec::belief, stardec::valuation, stardec::affective_norm>>;
+    //auto f_struct = std::make_shared<stardec::function_struct<stardec::belief, stardec::valuation, stardec::affective_norm>>;
 
     cxxopts::Options options("stardec", "STrategic ARgumentation using DECision trees");
     options.add_options()
@@ -78,18 +74,21 @@ int main(int argc, char *argv[]) {
         return -1;
     }
 
-    yyin = fopen(inputfilename.c_str(), "r");
-    stardec::graph g;
-    yyparse(g, verbose);
-    fclose(yyin);
+    //std::unordered_map<std::string, std::unordered_map<std::string, std::array<double, 3>>> values;
+    //load_circumplex_values(values);
 
-    if(verbose)
-        std::cout << "Building tree" << std::endl;
+    stardec::graph<stardec::belief> g(inputfilename, verbose);
+    std::cout << g.goal()->get<stardec::belief>().value() << std::endl;
+    stardec::belief_update<stardec::belief> bel(stardec::fast_ambivalent<stardec::belief>, false);
+    bel.update(g.goal());
+    std::cout << g.goal()->get<stardec::belief>().value() << std::endl;
 
-    std::unordered_map<std::string, std::unordered_map<std::string, std::array<double, 3>>> values;
-    load_circumplex_values(values);
+    /*if(verbose)
+        std::cout << "Building tree" << std::endl;*/
 
-    if(!options.count("allowduplicate"))
+
+
+    /*if(!options.count("allowduplicate"))
         f_struct->filters.push_back(stardec::remove_duplicate);
     if(!options.count("goalatks"))
         f_struct->filters.push_back(std::bind(stardec::remove_goal_atks, std::cref(g), std::placeholders::_1, std::placeholders::_2));
@@ -97,11 +96,11 @@ int main(int argc, char *argv[]) {
         f_struct->filters.push_back(std::bind(stardec::relevant, std::cref(g), std::placeholders::_1, std::placeholders::_2));
 
     if(update == "fast_ambivalent") f_struct->update = stardec::fast_ambivalent;
-    f_struct->valuation = std::make_tuple(stardec::present, std::bind(stardec::circumplex, std::placeholders::_1, std::placeholders::_2, std::cref(values.at(category))));
+    f_struct->valuation = std::make_tuple(stardec::present, std::bind(stardec::circumplex, std::placeholders::_1, std::placeholders::_2, std::cref(values.at(category))));*/
 
     //auto agg = stardec::mc;
     //stardec::tree<std::vector<double>> t(g, f_struct.filters, f_struct.update, valuation, agg, horizon, verbose, mtbuild, true);
-    stardec::tree<stardec::belief, stardec::valuation, stardec::affective_norm> t(std::make_shared<stardec::graph>(&g), f_struct, horizon, mtbuild);
+    //stardec::tree<stardec::belief, stardec::valuation, stardec::affective_norm> t(std::make_shared<stardec::graph>(&g), f_struct, horizon, mtbuild);
 
     // std::cout << t.to_dot() << std::endl;
     // return 0;
