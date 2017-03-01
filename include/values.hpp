@@ -1,5 +1,5 @@
-#ifndef STARDEC_LEAF_VALUE_H
-#define STARDEC_LEAF_VALUE_H
+#ifndef STARDEC_VALUES_H
+#define STARDEC_VALUES_H
 
 #include <vector>
 #include <array>
@@ -18,8 +18,8 @@ namespace stardec {
     template <typename T>
     class base_value {
     public:
-        base_value(T val) : _value(val) {};
-        base_value(const base_value<T> &other) : _value(other._value) {}
+        virtual base_value(T val) : _value(val) {}
+        virtual base_value(const base_value<T> &other) : _value(other._value) {}
         virtual ~base_value() {}
 
         virtual T value() const {return _value;}
@@ -31,17 +31,18 @@ namespace stardec {
     };
 
     /*************** valuation *******************/
-    class valuation : public base_value<double> {
+    /*class valuation : public base_value<double> {
     public:
         valuation(double val) : base_value<double>(val) {};
 
         virtual int comp(const double &other) const override {return comp3(_value, other);}
-    };
+    };*/
 
     /*************** belief *******************/
     class belief : public base_value<double> {
     public:
-        belief(double val) : base_value<double>(val) {};
+        belief() : base_value<double>(0.5) {}
+        belief(double val) : base_value<double>(val) {}
 
         virtual int comp(const double &other) const override {return comp3(_value, other);}
     };
@@ -49,7 +50,7 @@ namespace stardec {
     /*************** affective_norm *******************/
     class affective_norm : public base_value<std::array<double, 3>> {
     public:
-        affective_norm(const std::array<double, 3> &norms) : base_value<std::array<double,3>>(norms) {};
+        affective_norm(const std::array<double, 3> &norms) : base_value<std::array<double,3>>(norms) {}
 
         virtual int comp(const std::array<double, 3> &other) const override {
             int c0 = comp3(_value[0], other[0]);
@@ -84,4 +85,4 @@ namespace stardec {
     }
 }
 
-#endif
+#endif //STARDEC_VALUES_H

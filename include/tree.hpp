@@ -15,7 +15,7 @@
 namespace stardec {
     // template<class T>
     // using aggregationfunction = typename std::function<T(const std::unordered_map<unsigned int, T>&, const std::unordered_map<unsigned int, double>&)>;
-    template<class T> using decisionfunction = typename std::function<void(std::shared_ptr<leafnode<T>>)>;
+    template<typename T> using decisionfunction = typename std::function<void(std::shared_ptr<leafnode<T>>)>;
 
     template<typename... Values>
     class tree {
