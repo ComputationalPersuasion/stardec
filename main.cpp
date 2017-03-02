@@ -3,9 +3,10 @@
 #include <fstream>
 //#include "function_alias.hpp"
 #include "graph.hpp"
+#include "treebuilder.hpp"
 //#include "tree.hpp"
 // #include "evaluator.hpp"
-//#include "filter_functions.hpp"
+#include "filter_functions.hpp"
 // #include "distance.hpp"
 // #include "decision_functions.hpp"
 //#include "valuation_functions.hpp"
@@ -15,6 +16,9 @@
 //#include "function_struct.hpp"
 #include "cxxopts.hpp"
 #include "values.hpp"
+#include "parser/parser_helper.hpp"
+
+#define ARG_TYPE stardec::belief, stardec::affective_norm
 
 void load_circumplex_values(std::unordered_map<std::string, std::unordered_map<std::string, std::array<double, 3>>> &values) {
     unsigned int nbline;
@@ -77,12 +81,28 @@ int main(int argc, char *argv[]) {
     std::unordered_map<std::string, std::unordered_map<std::string, std::array<double, 3>>> values;
     load_circumplex_values(values);
 
-    stardec::graph<stardec::belief, stardec::affective_norm> g(inputfilename, verbose);
-    std::cout << g.goal()->get<stardec::belief>().value() << std::endl;
-    stardec::belief_update<stardec::belief, stardec::affective_norm> bel(stardec::fast_ambivalent<stardec::belief, stardec::affective_norm>);
+    stardec::graph<ARG_TYPE> g;
+    stardec::graphbuilder::build_graph_from_file(g, inputfilename, verbose);
+    stardec::tree<ARG_TYPE> t;
+    std::vector<stardec::filter_function<ARG_TYPE>> filters({stardec::remove_duplicate<ARG_TYPE>, stardec::relevant<ARG_TYPE>});
+    stardec::treebuilder::build_tree(t, g, filters, 2, true, true);
+
+
+    /*std::cout << g.goal()->get<stardec::belief>().value() << std::endl;
+    stardec::belief_update<ARG_TYPE> bel(stardec::fast_ambivalent<ARG_TYPE>);
     bel.update(g.goal());
-    stardec::affective_norm_update<stardec::belief, stardec::affective_norm> aff(values[category]);
-    std::cout << g.goal()->get<stardec::belief>().value() << std::endl;
+    std::cout << g.goal()->get<stardec::belief>().value() << std::endl;*/
+
+    /*stardec::affective_norm_update<ARG_TYPE> aff(values[category]);
+    auto norm = g.goal()->get<stardec::affective_norm>().value();
+    for( auto n : norm )
+        std::cout << n << " ";
+    std::cout << std::endl;
+    aff.update(g.goal());
+    norm = g.goal()->get<stardec::affective_norm>().value();
+    for( auto n : norm )
+        std::cout << n << " ";
+    std::cout << std::endl;*/
 
     /*if(verbose)
         std::cout << "Building tree" << std::endl;*/

@@ -9,9 +9,10 @@
 #include "values.hpp"
 
 namespace stardec {
-    //using filterfunction = std::function<void(std::set<std::string>&, const std::vector<std::string>&)>;
-    template <typename... Values> using belief_function = std::function<belief(argument<Values...>*)>;
-    //using filter_function = std::function<bool(const argument* const, const std::vector<argument*>&)>;
+    template <typename... Value> using filter_function = std::function<void(std::set<argument<Value...>*> &, const std::vector<argument<Value...>*> &)>;
+    template <typename... Value> using belief_function = std::function<belief(argument<Value...>*)>;
+    template <typename... Value> using decision_function = std::function<void(leafnode<Value...>*)>;
+    //template <typename... Value> using filter_function = std::function<bool(const argument<Value...>* const, const std::vector<argument<Value...>*>&)>;
     //using updatefunction = std::function<void(splittercell::distribution&, const argument&)>;
     //template<typename T>
     //using valuationfunction = typename std::function<std::unordered_map<unsigned int, T>(const graph&, const std::vector<std::string>&)>;

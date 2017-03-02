@@ -6,30 +6,31 @@
 #include <tuple>
 
 namespace stardec {
-    template <typename... Values>
+    template <typename... Value>
     class leafnode {
     public:
-        leafnode(const std::string &l);
-        leafnode(Values... v, const std::string &l);
+        leafnode(Value... v, const std::string &l) : value(std::make_tuple(v...)), label(l), optimal(nullptr) {}
+        leafnode(const std::string &l) : label(l), optimal(nullptr) {}
         virtual bool is_leaf() const {return true;}
-        virtual void add_child(std::unique_ptr<leafnode<Values...>> node) { throw std::invalid_argument("Can't add a child to a leaf."); }
+        virtual void add_child(std::unique_ptr<leafnode<Value...>>&) { throw std::invalid_argument("Can't add a child to a leaf."); }
+        virtual int comp(leafnode<Value...> *other) {
 
-        std::tuple<Values...> value;
+        }
+
+        std::tuple<Value...> value;
         std::string label;
-        std::vector<std::unique_ptr<leafnode<Values...>>> children;
-        leafnode<Values...> *optimal;
+        std::vector<std::unique_ptr<leafnode<Value...>>> children;
+        leafnode<Value...> *optimal;
         std::vector<double> model;
     };
 
-    template<typename... Values>
-    class node : public leafnode<Values...> {
+    template <typename... Value>
+    class node : public leafnode<Value...> {
     public:
-        node(const std::string &l);
+        node(const std::string &l) : leafnode<Value...>(l) {}
         bool is_leaf() const override {return false;}
-        void add_child(std::unique_ptr<leafnode<Values...>> node) override { this->children.push_back(node); }
+        void add_child(std::unique_ptr<leafnode<Value...>> &&node) override { this->children.push_back(std::move(node)); }
     };
 }
-
-#include "templates/node.tpp"
 
 #endif //STARDEC_NODE_H

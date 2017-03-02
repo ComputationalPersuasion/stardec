@@ -6,7 +6,7 @@
 #include <vector>
 #include <algorithm>
 #include <iterator>
-#include "graph.h"
+#include "graph.hpp"
 
 namespace stardec {
     /*bool is_attacking_goal(const graph &g, const argument* const candidate, const std::vector<argument*> &sequence) {
@@ -15,7 +15,8 @@ namespace stardec {
         return atkers.find(candidate->id()) != atkers.cend();
     }*/
 
-    void remove_goal_atks(const graph &g, std::set<argument*> &candidates, const std::vector<argument*> &sequence) {
+    template <typename... Value>
+    void remove_goal_atks(const graph<Value...> &g, std::set<argument<Value...>*> &candidates, const std::vector<argument<Value...>*> &sequence) {
         if((sequence.size() % 2) != 0)
             return;
         for(auto a : g.goal()->get_attackers())
@@ -27,7 +28,8 @@ namespace stardec {
     }*/
 
     //Cannot use set_difference because it requires the containers to be sorted (and we cannot sort the execution)
-    void remove_duplicate(std::set<argument*> &candidates, const std::vector<argument*> &sequence) {
+    template <typename... Value>
+    void remove_duplicate(std::set<argument<Value...>*> &candidates, const std::vector<argument<Value...>*> &sequence) {
         for(auto a : sequence)
             candidates.erase(a);
     }
@@ -48,10 +50,11 @@ namespace stardec {
         }
     }*/
 
-    void relevant(const graph &g, std::set<argument*> &candidates, const std::vector<argument*> &sequence) {
+    template <typename... Value>
+    void relevant(std::set<argument<Value...>*> &candidates, const std::vector<argument<Value...>*> &sequence) {
         if(sequence.empty())
             return;
-        std::set<argument*> relevant, relevant_candidates;
+        std::set<argument<Value...>*> relevant, relevant_candidates;
         for(auto posited : sequence) {
             auto atkers = posited->get_attackers();
             for(auto atk : atkers)
@@ -62,11 +65,12 @@ namespace stardec {
         if(relevant.empty())
             return;
 
-        std::copy_if(candidates.cbegin(), candidates.cend(), std::inserter(relevant_candidates), [&relevant](auto c) {return relevant.find(c) != relevant.cend();});
+        std::copy_if(candidates.cbegin(), candidates.cend(), std::inserter(relevant_candidates, relevant_candidates.end()), [&relevant](auto c) {return relevant.find(c) != relevant.cend();});
         candidates = relevant_candidates;
     }
 
-    void enforce_goal(const graph &g, std::set<argument*> &candidates, const std::vector<argument*> &sequence) {
+    template <typename... Value>
+    void enforce_goal(const graph<Value...> &g, std::set<argument<Value...>*> &candidates, const std::vector<argument<Value...>*> &sequence) {
         auto goal = g.goal();
         if(candidates.find(goal) == candidates.cend() && std::find(sequence.cbegin(), sequence.cend(), goal) == sequence.cend())
             candidates.clear();

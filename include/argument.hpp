@@ -11,7 +11,7 @@
 
 namespace stardec {
 
-    template <typename ...Values>
+    template <typename ...Value>
     class argument {
     public:
         argument(std::string label, unsigned int id) : _label(label), _id(id) {}
@@ -35,7 +35,7 @@ namespace stardec {
         unsigned int _id;
         std::map<unsigned int, argument*> _attacks, _is_atked_by;
         std::vector<std::string> _words;
-        std::tuple<Values...> _values;
+        std::tuple<Value...> _values;
     };
 
     //enum state {OUT, IN, UNDEC};

@@ -1,74 +1,64 @@
 #ifndef STARDEC_TREEBUILDER_H
 #define STARDEC_TREEBUILDER_H
 
+#include <future>
 #include <stdexcept>
+#include "function_alias.hpp"
 #include "graph.hpp"
 #include "tree.hpp"
 #include "node.hpp"
 
 namespace stardec {
-    template<typename... Values>
     class treebuilder {
     public:
-        static tree<Values...> build_tree(const graph &g, const std::vector<filterfunction> &filter_functions) {
-            tree<Values...> t;
+        template <typename... Value>
+        static void build_tree(tree<Value...> &t, const graph<Value...> &g, const std::vector<filter_function<Value...>> &filter_functions,
+                                unsigned int horizon, bool multi_th=true, bool verbose=false) {
             double time = 0;
             auto root = t.root();
             auto arguments = g.arguments();
-            std::vector<argument*> execution;
+            std::vector<argument<Value...>*> execution;
 
             for(auto filter : filter_functions)
-                filter(args, execution);
+                filter(arguments, execution);
 
-            if(mtbuild) {
-                std::vector<std::future<std::shared_ptr<leafnode<Values...>>>> futures;
-                auto begin = std::chrono::high_resolution_clock::now();
-                for(auto arg : args)
-                    futures.push_back(std::async(std::launch::async, build_execution<Values...>, std::cref(g), arg, execution, std::cref(filter_functions),
-                                                  horizon, mtdist));
-                for(auto &f : futures)
-                    _root->add_child(f.get());
-                auto end = std::chrono::high_resolution_clock::now();
-                time += std::chrono::duration<double>(end-begin).count();
-            } else {
-                for(auto arg : args) {
-                    auto begin = std::chrono::high_resolution_clock::now();
-                    _root->add_child(build_execution<Values...>(g, arg, execution, filter_functions, horizon, mtdist));
-                    auto end = std::chrono::high_resolution_clock::now();
-                    double t = std::chrono::duration<double>(end-begin).count();
-                    time += t;
-                    if(verbose)
-                        std::cout << "Subtree " << arg << " treated in " << t << " s." << std::endl;
-                }
-            }
+            std::launch mt_type;
+            if(multi_th)
+                mt_type = std::launch::async;
+            else
+                mt_type = std::launch::deferred;
+
+            std::vector<std::future<void>> futures;
+            auto begin = std::chrono::high_resolution_clock::now();
+            for(auto argument : arguments)
+                futures.push_back(std::async(mt_type, build_execution<Value...>, std::cref(g), std::ref(root), argument, execution, std::cref(filter_functions), horizon));
+            for(auto &f : futures)
+                f.wait();
+            auto end = std::chrono::high_resolution_clock::now();
+            time += std::chrono::duration<double>(end-begin).count();
+
             if(verbose)
                 std::cout << "Tree created in " << time << " s." << std::endl << std::endl;
         }
 
-        static std::shared_ptr<leafnode<Values...>> build_execution(const graph &g, const std::string &arg, std::vector<argument*> execution,
-                                                  const std::vector<filterfunction> &filter_functions, unsigned int horizon, bool mt)  {
+        template <typename... Value>
+        static void build_tree_bnb(tree<Value...> &t, const graph<Value...> &g);
+
+        template <typename... Value>
+        static void build_execution(const graph<Value...> &g, leafnode<Value...> *currentnode, argument<Value...> *arg, std::vector<argument<Value...>*> execution,
+                                                  const std::vector<filter_function<Value...>> &filter_functions, unsigned int horizon)  {
             auto arguments = g.arguments();
             execution.push_back(arg);
             for(auto filter : filter_functions)
-                filter(args, execution);
-            if(args.empty() || (execution.size() == horizon)) {
-
-                splittercell::distribution dist(g.distribution());
-                if(!mt)
-                    dist.disable_mt();
-                for(auto a : execution)
-                    update_function(dist, *g.arg(a));
-                auto values = valuation_function(g, execution);
-                auto goals = g.goals();
-                std::vector<unsigned int> goalsids(goals.size());
-                std::transform(goals.cbegin(), goals.cend(), goalsids.begin(), [](auto a){return a->id();});
-                auto beliefs = dist[goalsids];
-                return std::make_shared<leafnode<Belief, Values...>>(aggregation_function(values, beliefs), arg);
+                filter(arguments, execution);
+            if(arguments.empty() || (execution.size() == horizon))
+                currentnode->add_child(std::make_unique<leafnode<Value...>>(arg->label()));
+            else {
+                auto n = std::make_unique<node<Value...>>(arg->label());
+                for(auto nextarg : arguments)
+                    build_execution(g, n.get(), nextarg, execution, filter_functions, horizon);
+                currentnode->add_child(std::move(n));
             }
-            auto n = std::make_shared<node<Belief, Values...>>(arg);
-            for(auto nextarg : args)
-                n->add_child(build_execution<Belief, Values...>(g, nextarg, execution, filter_functions, update_function, valuation_function, /*aggregation_function,*/ horizon, mt));
-            return n;
         }
     };
 }

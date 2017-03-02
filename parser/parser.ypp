@@ -2,7 +2,7 @@
 
 %code requires {
     #include <vector>
-    #include "parser/parser_struct.hpp"
+    #include "parser/parser_helper.hpp"
 }
 %{
   #include <string>
@@ -10,7 +10,7 @@
   #include <iostream>
   #include <algorithm>
   #include <stdexcept>
-  #include "parser/parser_struct.hpp"
+  #include "parser/parser_helper.hpp"
 
   int yyparse(stardec::parsed_item&, bool);
   int yylex(void);
@@ -38,7 +38,7 @@ line : argument
         | words
 
 argument: ARG LEFTPAR LABEL RIGHTPAR DOT {
-    item.type = stardec::parsed_type::ARG;
+    item.type = stardec::parsed_item::ARG;
     item.arg = std::make_unique<stardec::parsed_argument>($3);
     if(v)
         std::cout << "Argument parsed: " << $3 << std::endl;
@@ -47,7 +47,7 @@ argument: ARG LEFTPAR LABEL RIGHTPAR DOT {
 
 words: WORDS LEFTPAR LABEL COMMA labellist RIGHTPAR DOT {
     std::vector<std::string> w($5->cbegin(), $5->cend());
-    item.type = stardec::parsed_type::WORDS;
+    item.type = stardec::parsed_item::WORDS;
     item.words = std::make_unique<stardec::parsed_words>($3, w);
 
     free($3);
@@ -56,13 +56,13 @@ words: WORDS LEFTPAR LABEL COMMA labellist RIGHTPAR DOT {
 }
 
 attack: ATT LEFTPAR LABEL COMMA LABEL RIGHTPAR DOT {
-    item.type = stardec::parsed_type::ATK;
+    item.type = stardec::parsed_item::ATK;
     item.atk = std::make_unique<stardec::parsed_attack>($3, $5);
     free($3); free($5);
 }
 
 goal: GOAL LEFTPAR LABEL RIGHTPAR DOT {
-    item.type = stardec::parsed_type::GOAL;
+    item.type = stardec::parsed_item::GOAL;
     item.goal = std::make_unique<stardec::parsed_goal>($3);
     if(v)
         std::cout << "Goal parsed: " << $3 << std::endl << std::endl;
