@@ -74,13 +74,14 @@ int main(int argc, char *argv[]) {
         return -1;
     }
 
-    //std::unordered_map<std::string, std::unordered_map<std::string, std::array<double, 3>>> values;
-    //load_circumplex_values(values);
+    std::unordered_map<std::string, std::unordered_map<std::string, std::array<double, 3>>> values;
+    load_circumplex_values(values);
 
-    stardec::graph<stardec::belief> g(inputfilename, verbose);
+    stardec::graph<stardec::belief, stardec::affective_norm> g(inputfilename, verbose);
     std::cout << g.goal()->get<stardec::belief>().value() << std::endl;
-    stardec::belief_update<stardec::belief> bel(stardec::fast_ambivalent<stardec::belief>, false);
+    stardec::belief_update<stardec::belief, stardec::affective_norm> bel(stardec::fast_ambivalent<stardec::belief, stardec::affective_norm>);
     bel.update(g.goal());
+    stardec::affective_norm_update<stardec::belief, stardec::affective_norm> aff(values[category]);
     std::cout << g.goal()->get<stardec::belief>().value() << std::endl;
 
     /*if(verbose)

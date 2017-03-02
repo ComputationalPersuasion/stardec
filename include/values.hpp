@@ -51,7 +51,7 @@ namespace stardec {
     /*************** affective_norm *******************/
     class affective_norm : public base_value<std::array<double, 3>> {
     public:
-        affective_norm() : base_value<std::array<double,3>>({0.0,0.0,0.0}) {}
+        affective_norm() : base_value<std::array<double,3>>({-1.0,-1.0,-1.0}) {}
         affective_norm(const std::array<double, 3> &norms) : base_value<std::array<double,3>>(norms) {}
 
         virtual int comp(const std::array<double, 3> &other) const override {

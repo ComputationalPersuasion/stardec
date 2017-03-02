@@ -14,9 +14,6 @@ namespace stardec {
     template <typename T, typename... Values>
     class update_function {
     public:
-        update_function(bool isfinal) : _final(isfinal) {}
-        bool is_final() const {return _final;}
-
         virtual T update(argument<Values...> *arg) const;
 
     private:
@@ -28,7 +25,7 @@ namespace stardec {
     template <typename... Values>
     class belief_update : public update_function<belief, Values...> {
     public:
-        belief_update(belief_function<Values...> bel, bool isfinal = false) : update_function<belief, Values...>(isfinal), _fct(bel) {}
+        belief_update(belief_function<Values...> bel) : update_function<belief, Values...>(), _fct(bel) {}
 
         belief update(argument<Values...> *arg) const override {
             return _fct(arg);
@@ -73,6 +70,24 @@ namespace stardec {
         return fast_general_update(arg, 1.0);
     }
     /***************** belief_update ********************/
+
+    template <typename... Values>
+    class affective_norm_update : update_function<affective_norm, Values...> {
+    public:
+        affective_norm_update(const std::unordered_map<std::string, std::array<double, 3>> &norm) : update_function<affective_norm, Values...>(), _norm(norm) {}
+
+        affective_norm update(argument<Values...> *arg) const override {
+            std::array<double, 3> mean {0.0, 0.0, 0.0};
+            for(auto w : arg->words()) {
+                auto norm = _norm.at(w);
+                for(unsigned int i = 0; i < 3; i++)
+                    mean[i] += (norm[i] / arg->words().size());
+            }
+            return affective_norm(mean);
+        }
+    private:
+        const std::unordered_map<std::string, std::array<double, 3>> &_norm;
+    };
 }
 
 #endif //STARDEC_UPDATE_FUNCTIONS_H

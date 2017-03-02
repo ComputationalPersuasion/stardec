@@ -15,7 +15,7 @@
   int yyparse(stardec::parsed_item&, bool);
   int yylex(void);
 
-  void yyerror (stardec::parsed_item &i, bool v, char const *s) {
+  void yyerror (stardec::parsed_item &, bool , char const *s) {
      fprintf (stderr, "%s\n", s);
      exit(-1);
    }
