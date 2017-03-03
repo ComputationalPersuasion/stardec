@@ -87,7 +87,6 @@ int main(int argc, char *argv[]) {
     std::vector<stardec::filter_function<ARG_TYPE>> filters({stardec::remove_duplicate<ARG_TYPE>, stardec::relevant<ARG_TYPE>});
     stardec::treebuilder::build_tree(t, g, filters, 2, true, true);
 
-
     /*std::cout << g.goal()->get<stardec::belief>().value() << std::endl;
     stardec::belief_update<ARG_TYPE> bel(stardec::fast_ambivalent<ARG_TYPE>);
     bel.update(g.goal());

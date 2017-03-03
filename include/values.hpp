@@ -24,11 +24,18 @@ namespace stardec {
 
         virtual T &value() {return _value;}
         virtual T const &value() const {return _value;}
+
         virtual int comp(const T &other) const = 0;
         virtual int comp(const base_value<T> &other) const {return comp(other._value);};
 
+        virtual bool operator< (const base_value<T> &other) const {return comp(other) == -1;}
+        virtual bool operator> (const base_value<T> &other) const {return comp(other) == 1;}
+        virtual bool operator== (const base_value<T> &other) const {return comp(other) == 0;}
+        virtual bool operator<= (const base_value<T> &other) const {return this->operator<(other) || this->operator==(other);};
+        virtual bool operator>= (const base_value<T> &other) const {return this->operator>(other) || this->operator==(other);};
+
     protected:
-      T _value;
+        T _value;
     };
 
     /*************** valuation *******************/
@@ -46,6 +53,7 @@ namespace stardec {
         belief(double val) : base_value<double>(val) {}
 
         virtual int comp(const double &other) const override {return comp3(_value, other);}
+        virtual int comp(const belief &other) const {return comp(other._value);}
     };
 
     /*************** affective_norm *******************/
@@ -57,34 +65,40 @@ namespace stardec {
         virtual int comp(const std::array<double, 3> &other) const override {
             int c0 = comp3(_value[0], other[0]);
             int c1 = comp3(_value[1], other[1]);
-            int c2 = comp3(_value[2], other[2]);
 
+            if(c0 == -c1) return -2;
             int ret = c0 + c1;
-            if(ret == 0 && c0 != c1) return 0;
             if(ret < -1) ret = -1;
             else if(ret > 1) ret = 1;
 
+            int c2 = comp3(_value[2], other[2]);
+            if(ret == -c2) return -2;
             ret += c2;
             if(ret < -1) ret = -1;
             else if(ret > 1) ret = 1;
 
             return ret;
         }
+        virtual int comp(const affective_norm &other) const {return comp(other._value);}
     };
 
     /******************* imprecise_belief ******************/
     class imprecise_belief : public base_value<std::array<double, 2>> {
     public:
         imprecise_belief() : base_value<std::array<double,2>>({0,1}) {}
-        imprecise_belief(const std::array<double,2> &bounds) :
-        base_value<std::array<double,2>>(bounds) {}
+        imprecise_belief(const std::array<double,2> &bounds) : base_value<std::array<double,2>>(bounds) {}
 
         virtual int comp(const std::array<double, 2> &other) const override {
-            int ret = comp3(_value[0], other[0]) + comp3(_value[1], other[1]);
+            int c0 = comp3(_value[0], other[0]);
+            int c1 = comp3(_value[1], other[1]);
+
+            if(c0 == -c1) return -2;
+            int ret = c0 + c1;
             if(ret < -1) ret = -1;
             else if(ret > 1) ret = 1;
             return ret;
         }
+        virtual int comp(const imprecise_belief &other) const {return comp(other._value);}
     };
 }
 

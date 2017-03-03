@@ -23,7 +23,7 @@ namespace stardec {
         leafnode<Value...>* root() {return _root.get();}
 
         void compute_optimal_policy(const decision_function<Value...> &fct) {
-
+            
         }
 
     private:
