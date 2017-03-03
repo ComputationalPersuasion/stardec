@@ -40,12 +40,12 @@
 extern int yydebug;
 #endif
 /* "%code requires" blocks.  */
-#line 3 "parser/parser.ypp" /* yacc.c:1909  */
+#line 3 "parser/parser.ypp" /* yacc.c:1915  */
 
     #include <vector>
     #include "parser/parser_helper.hpp"
 
-#line 49 "include/parser/parser.hpp" /* yacc.c:1909  */
+#line 49 "include/parser/parser.hpp" /* yacc.c:1915  */
 
 /* Token type.  */
 #ifndef YYTOKENTYPE
@@ -75,12 +75,12 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 25 "parser/parser.ypp" /* yacc.c:1909  */
+#line 25 "parser/parser.ypp" /* yacc.c:1915  */
 
     char *str;
     std::vector<char *> *arglabels;
 
-#line 84 "include/parser/parser.hpp" /* yacc.c:1909  */
+#line 84 "include/parser/parser.hpp" /* yacc.c:1915  */
 };
 
 typedef union YYSTYPE YYSTYPE;

@@ -27,7 +27,7 @@ namespace stardec {
         }
 
     private:
-        std::unique_ptr<node<Values...>> _root;
+        std::unique_ptr<node<Value...>> _root;
     };
 }
 

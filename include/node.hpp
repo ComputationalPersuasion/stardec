@@ -12,10 +12,10 @@ namespace stardec {
         leafnode(Value... v, const std::string &l) : value(std::make_tuple(v...)), label(l), optimal(nullptr) {}
         leafnode(const std::string &l) : label(l), optimal(nullptr) {}
         virtual bool is_leaf() const {return true;}
-        virtual void add_child(std::unique_ptr<leafnode<Value...>>&) { throw std::invalid_argument("Can't add a child to a leaf."); }
-        virtual int comp(leafnode<Value...> *other) {
+        virtual void add_child(std::unique_ptr<leafnode<Value...>>&&) { throw std::invalid_argument("Can't add a child to a leaf."); }
+        /*virtual int comp(leafnode<Value...> *other) {
 
-        }
+        }*/
 
         std::tuple<Value...> value;
         std::string label;
@@ -28,8 +28,8 @@ namespace stardec {
     class node : public leafnode<Value...> {
     public:
         node(const std::string &l) : leafnode<Value...>(l) {}
-        bool is_leaf() const override {return false;}
-        void add_child(std::unique_ptr<leafnode<Value...>> &&node) override { this->children.push_back(std::move(node)); }
+        virtual bool is_leaf() const override {return false;}
+        virtual void add_child(std::unique_ptr<leafnode<Value...>> &&node) override { this->children.push_back(std::move(node)); }
     };
 }
 

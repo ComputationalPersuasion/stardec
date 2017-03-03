@@ -6,6 +6,7 @@
 #include <vector>
 #include <unordered_map>
 #include "argument.hpp"
+#include "node.hpp"
 #include "values.hpp"
 
 namespace stardec {
