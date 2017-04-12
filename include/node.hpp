@@ -4,6 +4,8 @@
 #include <memory>
 #include <vector>
 #include <tuple>
+#include <string>
+#include <sstream>
 
 namespace stardec {
     template <typename... Value>
@@ -15,11 +17,19 @@ namespace stardec {
         virtual void add_child(std::unique_ptr<leafnode<Value...>>&&) {throw std::invalid_argument("Can't add a child to a leaf.");}
         virtual bool operator<(const leafnode<Value...> &other) const {return comp<Value...>(other) == -1;}
 
+        std::string str() const {
+            std::stringstream s;
+            s << "[";
+            str<Value...>(s);
+            s << "]";
+            return s.str();
+        }
+
         std::tuple<Value...> value;
         std::string label;
         std::vector<std::unique_ptr<leafnode<Value...>>> children;
         leafnode<Value...> *optimal;
-        std::vector<double> model;
+        std::vector<double> model, profile;
 
     private:
         template <typename T>
@@ -39,6 +49,17 @@ namespace stardec {
             else if(ret > 1) ret = 1;
 
             return ret;
+        }
+
+        template <typename T>
+        void str(std::stringstream &s) const {
+            s << std::get<T>(value).str();
+        }
+
+        template <typename T, typename U, typename... Other>
+        void str(std::stringstream &s) const {
+            s << std::get<T>(value).str() << ",";
+            str<U,Other...>(s);
         }
     };
 

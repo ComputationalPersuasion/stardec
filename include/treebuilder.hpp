@@ -7,17 +7,18 @@
 #include "graph.hpp"
 #include "tree.hpp"
 #include "node.hpp"
+#include "sequence.hpp"
 
 namespace stardec {
     class treebuilder {
     public:
         template <typename... Value>
         static void build_tree(tree<Value...> &t, const graph<Value...> &g, const std::vector<filter_function<Value...>> &filter_functions,
-                                unsigned int horizon, bool multi_th=true, bool verbose=false) {
+                               unsigned int horizon, bool multi_th=true, bool verbose=false) {
             double time = 0;
             auto root = t.root();
             auto arguments = g.arguments();
-            std::vector<argument<Value...>*> execution;
+            sequence<Value...> execution;
 
             for(auto filter : filter_functions)
                 filter(arguments, execution);
@@ -42,13 +43,10 @@ namespace stardec {
         }
 
         template <typename... Value>
-        static void build_tree_bnb(tree<Value...> &t, const graph<Value...> &g);
-
-        template <typename... Value>
-        static void build_execution(const graph<Value...> &g, leafnode<Value...> *currentnode, argument<Value...> *arg, std::vector<argument<Value...>*> execution,
-                                                  const std::vector<filter_function<Value...>> &filter_functions, unsigned int horizon)  {
+        static void build_execution(const graph<Value...> &g, leafnode<Value...> *currentnode, argument<Value...> *arg, sequence<Value...> execution,
+                                    const std::vector<filter_function<Value...>> &filter_functions, unsigned int horizon)  {
             auto arguments = g.arguments();
-            execution.push_back(arg);
+            execution.add(arg);
             for(auto filter : filter_functions)
                 filter(arguments, execution);
             if(arguments.empty() || (execution.size() == horizon))

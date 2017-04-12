@@ -3,6 +3,8 @@
 
 #include <vector>
 #include <array>
+#include <string>
+#include <sstream>
 
 namespace stardec {
     inline int comp3(double val1, double val2) {
@@ -34,17 +36,11 @@ namespace stardec {
         virtual bool operator<= (const base_value<T> &other) const {return this->operator<(other) || this->operator==(other);};
         virtual bool operator>= (const base_value<T> &other) const {return this->operator>(other) || this->operator==(other);};
 
+        virtual std::string str() const = 0;
+
     protected:
         T _value;
     };
-
-    /*************** valuation *******************/
-    /*class valuation : public base_value<double> {
-    public:
-        valuation(double val) : base_value<double>(val) {};
-
-        virtual int comp(const double &other) const override {return comp3(_value, other);}
-    };*/
 
     /*************** belief *******************/
     class belief : public base_value<double> {
@@ -54,6 +50,8 @@ namespace stardec {
 
         virtual int comp(const double &other) const override {return comp3(_value, other);}
         virtual int comp(const belief &other) const {return comp(other._value);}
+
+        virtual std::string str() const override {return std::to_string(_value);}
     };
 
     /*************** affective_norm *******************/
@@ -80,6 +78,12 @@ namespace stardec {
             return ret;
         }
         virtual int comp(const affective_norm &other) const {return comp(other._value);}
+
+        virtual std::string str() const override {
+            std::stringstream s;
+            s << "[" << _value[0] << "," << _value[1] << "," << _value[2] << "]";
+            return s.str();
+        }
     };
 
     /******************* imprecise_belief ******************/
@@ -99,6 +103,12 @@ namespace stardec {
             return ret;
         }
         virtual int comp(const imprecise_belief &other) const {return comp(other._value);}
+
+        virtual std::string str() const override {
+            std::stringstream s;
+            s << "[" << _value[0] << "," << _value[1] << "]";
+            return s.str();
+        }
     };
 }
 

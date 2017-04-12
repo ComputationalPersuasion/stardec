@@ -8,9 +8,10 @@
 #include "argument.hpp"
 #include "node.hpp"
 #include "values.hpp"
+#include "sequence.hpp"
 
 namespace stardec {
-    template <typename... Value> using filter_function = std::function<void(std::set<argument<Value...>*> &, const std::vector<argument<Value...>*> &)>;
+    template <typename... Value> using filter_function = std::function<void(std::set<argument<Value...>*> &, const sequence<Value...> &)>;
     template <typename... Value> using belief_function = std::function<belief(argument<Value...>*)>;
     template <typename... Value> using decision_function = std::function<void(leafnode<Value...>*)>;
     //template <typename... Value> using filter_function = std::function<bool(const argument<Value...>* const, const std::vector<argument<Value...>*>&)>;

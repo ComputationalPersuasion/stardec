@@ -15,11 +15,7 @@ namespace stardec {
     class update_function {
     public:
         virtual T update(argument<Value...> *arg) const;
-
-    private:
-        bool _final;
     };
-
 
     /***************** belief_update ********************/
     template <typename... Value>
@@ -71,6 +67,7 @@ namespace stardec {
     }
     /***************** belief_update ********************/
 
+    /************** affective_norm_update ***************/
     template <typename... Value>
     class affective_norm_update : update_function<affective_norm, Value...> {
     public:
@@ -88,6 +85,7 @@ namespace stardec {
     private:
         const std::unordered_map<std::string, std::array<double, 3>> &_norm;
     };
+    /************** affective_norm_update ***************/
 }
 
 #endif //STARDEC_UPDATE_FUNCTIONS_H

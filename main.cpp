@@ -8,7 +8,7 @@
 // #include "evaluator.hpp"
 #include "filter_functions.hpp"
 // #include "distance.hpp"
-// #include "decision_functions.hpp"
+#include "decision_functions.hpp"
 //#include "valuation_functions.hpp"
 #include "update_functions.hpp"
 //#include "aggregation_functions.hpp"
@@ -18,7 +18,7 @@
 #include "values.hpp"
 #include "parser/parser_helper.hpp"
 
-#define ARG_TYPE stardec::belief, stardec::affective_norm
+#define ARG_TYPE stardec::belief
 
 void load_circumplex_values(std::unordered_map<std::string, std::unordered_map<std::string, std::array<double, 3>>> &values) {
     unsigned int nbline;
@@ -84,8 +84,9 @@ int main(int argc, char *argv[]) {
     stardec::graph<ARG_TYPE> g;
     stardec::graphbuilder::build_graph_from_file(g, inputfilename, verbose);
     stardec::tree<ARG_TYPE> t;
-    std::vector<stardec::filter_function<ARG_TYPE>> filters({stardec::remove_duplicate<ARG_TYPE>, stardec::relevant<ARG_TYPE>});
-    stardec::treebuilder::build_tree(t, g, filters, 2, true, true);
+    std::vector<stardec::filter_function<ARG_TYPE>> filters({stardec::remove_duplicate<ARG_TYPE>, stardec::relevant<ARG_TYPE>, std::bind(stardec::remove_goal_atks<ARG_TYPE>, std::cref(g), std::placeholders::_1, std::placeholders::_2)});
+    stardec::treebuilder::build_tree(t, g, filters, horizon, true, true);
+    std::cout << t.to_dot() << std::endl;
 
     /*std::cout << g.goal()->get<stardec::belief>().value() << std::endl;
     stardec::belief_update<ARG_TYPE> bel(stardec::fast_ambivalent<ARG_TYPE>);
@@ -128,8 +129,7 @@ int main(int argc, char *argv[]) {
     // if(verbose)
     //     std::cout << "Computing policy" << std::endl;
     // auto ref = std::bind(stardec::biaised_ideal, std::placeholders::_1, std::vector<double>({1, 0.8, 0.8, 1, 1}));
-    // auto dec = std::bind(stardec::rpemomax, std::placeholders::_1, std::cref(ref));
-    // t.optimize(dec);
+    t.compute_optimal_policy(&stardec::maximax<ARG_TYPE>);
     // stardec::evaluator<std::vector<double>> eval;
     // if(verbose)
     //     std::cout << "Evaluating policy" << std::endl;

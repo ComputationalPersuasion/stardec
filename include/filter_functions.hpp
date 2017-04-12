@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <iterator>
 #include "graph.hpp"
+#include "sequence.hpp"
 
 namespace stardec {
     /*bool is_attacking_goal(const graph &g, const argument* const candidate, const std::vector<argument*> &sequence) {
@@ -16,8 +17,8 @@ namespace stardec {
     }*/
 
     template <typename... Value>
-    void remove_goal_atks(const graph<Value...> &g, std::set<argument<Value...>*> &candidates, const std::vector<argument<Value...>*> &sequence) {
-        if((sequence.size() % 2) != 0)
+    void remove_goal_atks(const graph<Value...> &g, std::set<argument<Value...>*> &candidates, const sequence<Value...> &seq) {
+        if((seq.size() % 2) != 0)
             return;
         for(auto a : g.goal()->get_attackers())
             candidates.erase(a.second);
@@ -29,8 +30,8 @@ namespace stardec {
 
     //Cannot use set_difference because it requires the containers to be sorted (and we cannot sort the execution)
     template <typename... Value>
-    void remove_duplicate(std::set<argument<Value...>*> &candidates, const std::vector<argument<Value...>*> &sequence) {
-        for(auto a : sequence)
+    void remove_duplicate(std::set<argument<Value...>*> &candidates, const sequence<Value...> &seq) {
+        for(auto a : seq)
             candidates.erase(a);
     }
 
@@ -51,16 +52,16 @@ namespace stardec {
     }*/
 
     template <typename... Value>
-    void relevant(std::set<argument<Value...>*> &candidates, const std::vector<argument<Value...>*> &sequence) {
-        if(sequence.empty())
+    void relevant(std::set<argument<Value...>*> &candidates, const sequence<Value...> &seq) {
+        if(seq.empty())
             return;
         std::set<argument<Value...>*> relevant, relevant_candidates;
-        for(auto posited : sequence) {
+        for(auto posited : seq) {
             auto atkers = posited->get_attackers();
             for(auto atk : atkers)
                 relevant.insert(atk.second);
         }
-        for(auto posited : sequence)
+        for(auto posited : seq)
             relevant.erase(posited);
         if(relevant.empty())
             return;
@@ -70,9 +71,9 @@ namespace stardec {
     }
 
     template <typename... Value>
-    void enforce_goal(const graph<Value...> &g, std::set<argument<Value...>*> &candidates, const std::vector<argument<Value...>*> &sequence) {
+    void enforce_goal(const graph<Value...> &g, std::set<argument<Value...>*> &candidates, const sequence<Value...> &seq) {
         auto goal = g.goal();
-        if(candidates.find(goal) == candidates.cend() && std::find(sequence.cbegin(), sequence.cend(), goal) == sequence.cend())
+        if(candidates.find(goal) == candidates.cend() && std::find(seq.cbegin(), seq.cend(), goal) == seq.cend())
             candidates.clear();
     }
 }
