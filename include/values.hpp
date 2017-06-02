@@ -5,6 +5,7 @@
 #include <array>
 #include <string>
 #include <sstream>
+#include "beta_mixture.hpp"
 
 namespace stardec {
     inline int comp3(double val1, double val2) {
@@ -107,6 +108,25 @@ namespace stardec {
         virtual std::string str() const override {
             std::stringstream s;
             s << "[" << _value[0] << "," << _value[1] << "]";
+            return s.str();
+        }
+    };
+
+    /******************* beta_belief ******************/
+    class beta_belief : public base_value<beta_mixture> {
+    public:
+        beta_belief() : base_value<beta_mixture>(beta_mixture()) {}
+        beta_belief(const beta_mixture &mixture) : base_value<beta_mixture>(mixture) {}
+
+        virtual int comp(const beta_mixture &) const override {
+            return 0;
+        }
+        virtual int comp(const beta_belief &other) const {return comp(other._value);}
+
+        virtual std::string str() const override {
+            std::stringstream s;
+            for(const auto &p : _value.mixture())
+                s << "[" << p.first << ": (" << p.second.alpha() << "," << p.second.beta() << ")] ";
             return s.str();
         }
     };

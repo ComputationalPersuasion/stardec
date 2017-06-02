@@ -3,6 +3,7 @@ project(stardec)
 
 find_package(BISON)
 find_package(FLEX)
+find_package(Boost)
 
 IF(BISON_FOUND AND FLEX_FOUND)
     BISON_TARGET(parser parser/parser.ypp src/parser.cpp DEFINES_FILE include/parser/parser.hpp)
@@ -11,6 +12,10 @@ IF(BISON_FOUND AND FLEX_FOUND)
     set(FLEX_BISON_FILES ${BISON_parser_OUTPUTS} ${FLEX_lexer_OUTPUTS})
 ELSE()
     set(FLEX_BISON_FILES src/parser.cpp src/lexer.cpp)
+ENDIF()
+
+IF(Boost_FOUND)
+  include_directories(${Boost_INCLUDE_DIRS})
 ENDIF()
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Wall -O3 -g -pthread -pedantic -Wall -Wextra")

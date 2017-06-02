@@ -27,9 +27,8 @@ namespace stardec {
             fct(_root.get());
         }
 
-        void compute_optimal_policy(const std::vector<decision_function<Value...> &fcts) {
+        void compute_optimal_policy(const std::vector<decision_function<Value...>> &fcts) {
             _root.profile = std::vector<double>(fcts.size(), 1.0/fcts.size());
-            
         }
 
         std::string to_dot() const {
