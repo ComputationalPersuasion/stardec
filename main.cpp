@@ -89,28 +89,30 @@ int main(int argc, char *argv[]) {
     if(verbose)
         std::cout << "Building tree" << std::endl;
 
-    std::unordered_map<std::string, std::unordered_map<std::string, std::array<double, 3>>> values;
-    load_circumplex_values(values);
+    //std::unordered_map<std::string, std::unordered_map<std::string, std::array<double, 3>>> values;
+    //load_circumplex_values(values);
 
     std::vector<stardec::filterfunction> filt({stardec::remove_duplicate, std::bind(stardec::relevant, std::cref(g), std::placeholders::_1, std::placeholders::_2)});
     auto update = stardec::fast_ambivalent;
-    auto valuation = std::bind(stardec::circumplex, std::placeholders::_1, std::placeholders::_2, std::cref(values.at(category)));
-    auto agg = stardec::mc;
-    stardec::tree<std::vector<double>> t(g, filt, update, valuation, agg, horizon, verbose, mtbuild, true);
+    auto valuation = stardec::present;
+    //auto valuation = std::bind(stardec::circumplex, std::placeholders::_1, std::placeholders::_2, std::cref(values.at(category)));
+    auto agg = stardec::average;
+    stardec::tree<double> t(g, filt, update, valuation, agg, horizon, verbose, mtbuild, true);
 
     // std::cout << t.to_dot() << std::endl;
     // return 0;
 
     if(verbose)
         std::cout << "Computing policy" << std::endl;
-    auto ref = std::bind(stardec::biaised_ideal, std::placeholders::_1, std::vector<double>({1, 0.8, 0.8, 1, 1}));
-    auto dec = std::bind(stardec::rpemomax, std::placeholders::_1, std::cref(ref));
+    //auto ref = std::bind(stardec::biaised_ideal, std::placeholders::_1, std::vector<double>({1, 0.8, 0.8, 1, 1}));
+    //auto dec = std::bind(stardec::rpemomax, std::placeholders::_1, std::cref(ref));
+    auto dec = std::bind(stardec::maximin, std::placeholders::_1, 0.9);
     t.optimize(dec);
-    stardec::evaluator<std::vector<double>> eval;
+    stardec::evaluator<double> eval;
     if(verbose)
         std::cout << "Evaluating policy" << std::endl;
 
-    auto prop = stardec::optimal<std::vector<double>>, opp = stardec::optimal<std::vector<double>>;
+    auto prop = stardec::optimal<double>, opp = stardec::optimal<double>;
     auto p = eval.evaluate(t.root(), prop, opp);
     // std::cout << t.to_dot() << std::endl;
     //for(auto s : p.first)
