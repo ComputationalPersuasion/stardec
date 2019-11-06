@@ -2,9 +2,10 @@
 
 ## Installation
 1. Clone the repository
-2. ```git submodule update --remote```
-3. ```cmake .```
-4. ```make```
+2. ```git submodule init```
+3. ```git submodule update --remote```
+4. ```cmake .```
+5. ```make```
 
 ## Running the program
 It can be a good idea to run ```./stardecbin -h```
